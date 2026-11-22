@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nick's Recipes</title>
+<meta name="theme-color" content="#171815">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nick's Recipes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{color-scheme:dark;--bg:#171815;--card:#232420;--ink:#f2efe8;--muted:#9a917f;--faint:#7d7666;--line:#35362f;--input:#2a2b26;--accent:#e8a04c;--accent-dark:#c9832f;--pill:rgba(232,160,76,.13);--pill-line:rgba(232,160,76,.35);--shadow:0 2px 12px rgba(0,0,0,.35)}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:1080px;margin:0 auto;padding:28px 20px 40px;color:var(--ink);background:var(--bg);line-height:1.5}
+h1{font-family:Georgia,'Times New Roman',serif;font-size:34px;line-height:1.1;letter-spacing:-.02em;margin:0 0 20px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 20px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+input[type=search]{flex:1;min-width:240px;height:44px;padding:0 14px;border:1px solid var(--line);border-radius:12px;font-size:16px;background:var(--input);color:var(--ink)}
+select,button{height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--input);cursor:pointer;font-size:14px;font-weight:600;color:var(--ink)}
+button:hover{border-color:#55564d;background:#2e2f2a}
+button.primary{background:var(--accent);color:#1d1a14;border-color:var(--accent)}
+button.primary:hover{background:var(--accent-dark)}
+button.selected{background:var(--pill);color:var(--accent);border-color:var(--accent)}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
+@media(max-width:800px){.grid{grid-template-columns:1fr}body{padding:20px 14px}h1{font-size:28px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow);transition:transform .15s ease,box-shadow .15s ease}
+.card:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.45),0 12px 28px rgba(0,0,0,.4)}
+.card h3{margin:0 0 6px;font-size:19px;line-height:1.3}
+.card-photo{width:100%;height:180px;object-fit:cover;border-radius:12px;margin:0 0 12px;display:block}
+.photo-row{display:flex;gap:8px;align-items:center;margin:10px 0 0;flex-wrap:wrap}
+.photo-label{position:relative;display:inline-block;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:14px;cursor:pointer;overflow:hidden}
+.photo-label input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.meta{font-size:13px;color:var(--muted);margin-bottom:8px}
+.tag{display:inline-block;border:1px solid;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:600;margin:2px 3px 2px 0}
+.tag-protein{background:rgba(232,160,76,.16);border-color:rgba(232,160,76,.4);color:#e8a04c}
+.tag-gluten{background:rgba(127,176,105,.16);border-color:rgba(127,176,105,.4);color:#9ccb8a}
+.tag-med{background:rgba(110,168,201,.16);border-color:rgba(110,168,201,.4);color:#8fc3e0}
+.tag-fiber{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:#cfc9ba}
+.ing-list{font-size:14.5px;line-height:1.6;color:var(--ink);margin:8px 0 12px;padding-left:20px}
+.ing-list li{margin-bottom:3px}
+.ing-list li::marker{color:var(--accent)}
+details .ing-list{margin-bottom:4px}
+.serves-row{margin:8px 0 2px;font-size:14px}
+.serves-row label{font-weight:600;color:var(--muted)}
+.serves-row select{height:34px;padding:0 8px;margin-left:6px;font-size:14px}
+.serves-note{margin-left:8px;font-size:12.5px;color:var(--faint)}
+.steps{font-size:14.5px;line-height:1.65}
+.step{margin:0 0 10px}
+.step-num{display:inline-block;font-weight:700;color:var(--accent);margin-right:6px}
+.steps-empty{color:var(--faint);font-style:italic}
+aside{position:sticky;top:20px}
+@media(max-width:800px){aside{position:static}}
+.shop{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.shop h2{margin:0 0 6px;font-family:Georgia,'Times New Roman',serif;font-size:22px}
+#shopCount{margin:0 0 10px;color:var(--muted);font-size:14px}
+.shop ul{padding:0;margin:0 0 14px;list-style:none}
+.shop li{padding:8px 0;border-bottom:1px solid var(--line)}
+.shop li:last-child{border-bottom:0}
+.shop label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:14.5px;line-height:1.5}
+.shop input[type=checkbox]{accent-color:var(--accent);width:18px;height:18px;margin-top:2px;flex-shrink:0}
+.shop label:has(input:checked){text-decoration:line-through;color:var(--faint)}
+.shop li.empty{color:var(--faint);list-style:none}
+.shop-group{font-weight:700;color:var(--accent);padding-top:14px;border-bottom:0}
+.shop-group:first-child{padding-top:2px}
+.staple-toggle{display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--muted);margin:0 0 10px;cursor:pointer}
+.staple-toggle input{accent-color:var(--accent);width:16px;height:16px;margin:0}
+.cook-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);overflow:auto;z-index:50;padding:16px}
+.cook-modal[hidden]{display:none}
+.cook-card{background:var(--card);max-width:720px;margin:24px auto;padding:24px;border-radius:18px;box-shadow:var(--shadow)}
+.cook-card h2{font-family:Georgia,'Times New Roman',serif;font-size:28px;margin:0 0 8px}
+.cook-card h3{margin:20px 0 8px;font-size:18px}
+.cook-card .ing-list{font-size:16px;line-height:1.6}
+.cook-steps{padding:0;list-style:none}
+.cook-steps li{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);font-size:18px;line-height:1.6}
+.cook-steps li:last-child{border-bottom:0}
+.cook-steps input[type=checkbox]{accent-color:var(--accent);width:20px;height:20px;margin-top:4px;flex-shrink:0}
+.cook-steps label:has(input:checked){text-decoration:line-through;color:var(--faint)}
+.cook-close{float:right}
+.shop-actions{display:flex;gap:10px;flex-wrap:wrap}
+.shop-actions button{flex:1;min-width:140px}
+.shop .tip{font-size:12.5px;color:var(--faint);margin:14px 0 0;line-height:1.5}
+details{margin-top:10px} summary{cursor:pointer;font-weight:700;color:var(--accent)}
+footer{font-size:12.5px;color:var(--faint);margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+@media print{body,.card,.shop{background:#fff!important;color:#000!important}.toolbar,.filters,button{display:none!important}.grid{grid-template-columns:1fr}aside{position:static}.card{box-shadow:none;break-inside:avoid}.meta,.tip,#shopCount,.result-count,.ing-list{color:#333!important}.tag{background:#eee!important;color:#333!important;border-color:#ddd!important}summary{color:#000!important}}
+
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin:0 0 16px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.filters label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.filters>label{flex:1 1 150px}
+.filters select{width:100%}
+.filters button{align-self:flex-end}
+.filter-checks{flex-basis:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;border-top:1px solid var(--line);padding-top:12px}
+@media(min-width:700px){.filter-checks{grid-template-columns:repeat(4,1fr)}}
+.filters button{margin-left:auto}
+.filters label.check{flex-direction:row;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:14px;font-weight:600;color:var(--ink)}
+.filters label.check input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.result-count{margin:0 0 12px;color:var(--muted);font-size:14px}
+.backup-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.backup-label{font-size:13px}
+</style></head>
+<body>
+<h1>Nick's Recipes</h1>
+<div class="toolbar">
+<input id="q" type="search" placeholder="Search recipes, ingredients… e.g. chickpea, salmon, kale">
+<select id="time"><option value="">Any time</option><option value="20">≤ 20 min</option><option value="30">≤ 30 min</option><option value="45">≤ 45 min</option></select>
+<button id="clear">Clear selected</button>
+</div>
+<div class="filters">
+<label>Type<select id="typeF"><option value="">All types</option></select></label>
+<label>Main<select id="mainF"><option value="">All mains</option></select></label>
+<div class="filter-checks">
+<label class="check"><input type="checkbox" id="proteinF"> Protein mains</label>
+<label class="check"><input type="checkbox" id="medF"> Mediterranean</label>
+<label class="check"><input type="checkbox" id="fiberF"> High fiber</label>
+<label class="check"><input type="checkbox" id="gfF"> Low gluten</label>
+</div>
+<button id="resetFilters">Reset filters</button>
+</div>
+<div class="grid"><div><p id="resultCount" class="result-count"></p><div id="list"></div></div>
+<aside><div class="shop"><h2>Shopping list</h2><p id="shopCount">No meals selected yet.</p><label class="staple-toggle"><input type="checkbox" id="hideStaples"> Hide pantry staples (oil, salt, pepper, water)</label><ul id="shop"></ul><div class="shop-actions"><button class="primary" id="copy">Copy shopping list</button><button id="print">Print</button></div><div class="backup-row"><button id="backupBtn">Download backup</button><label class="backup-label">Restore backup <input type="file" id="restoreInput" accept=".json,application/json"></label></div><p class="tip">Backup includes selected meals, serves, shopping checks, cook-mode checks, and photos. Restore replaces those on this device/browser, then reloads the app.</p><p class="tip">Tip: matching ingredients are added together and grouped by section. Items with different units, or vague amounts, stay separate — check them before you shop.</p></div></aside></div>
+<div id="cookModal" class="cook-modal" hidden><div class="cook-card"><button id="cookClose" class="cook-close">✕ Close</button><h2 id="cookTitle"></h2><p id="cookMeta" class="meta"></p><h3>Ingredients</h3><ul id="cookIngredients" class="ing-list"></ul><h3>How to make it</h3><ol id="cookSteps" class="cook-steps"></ol><p><button id="cookReset">Reset checked steps</button></p></div></div>
+<footer>42 recipes — starters, Notion, Instagram-inspired, and Hong Kong-style. Low-gluten · Mediterranean-style.</footer>
+<script>
+const recipes=[
+{id:2,title:"Lemon Chickpea & Cucumber Salad",source:"Starter recipe",time:15,servings:2,fiber:"high",tags:["salad","low-gluten","mediterranean","no-cook"],ingredients:["1 can (15 oz) chickpeas, rinsed","1 cucumber, diced","1 cup cherry tomatoes, halved","1/4 red onion, finely diced","Feta, crumbled","Olive oil, lemon juice, oregano, salt & pepper"],steps:"Toss everything with olive oil and lemon. Season, rest 5 minutes, top with feta."},
+{id:4,title:"Herb Salmon with Roasted Vegetables",source:"Starter recipe",time:30,servings:2,fiber:"low",tags:["fish","low-gluten","mediterranean","high-protein"],ingredients:["2 salmon fillets","2 zucchini, chopped","1 punnet cherry tomatoes","1 lemon","Olive oil, garlic, oregano, salt & pepper","Fresh herbs (parsley / dill)"],steps:"Roast vegetables at 200°C / 400°F for 15 minutes. Add salmon, roast 10–12 minutes more. Finish with lemon and herbs."},
+{id:5,title:"Lentil & Roasted Pepper Bowl",source:"Starter recipe",time:30,servings:3,fiber:"high",tags:["bowl","low-gluten","mediterranean","meal-prep"],ingredients:["1 cup green or brown lentils","1 jar roasted peppers, sliced","1 cucumber, diced","Olives, handful","Feta, crumbled","Olive oil, red wine vinegar, oregano"],steps:"Cook lentils until tender, drain and cool slightly. Toss with peppers, cucumber, olives and dressing. Top with feta."},
+{id:7,title:"Garlic Shrimp with White Beans & Spinach",source:"Starter recipe",time:20,servings:2,fiber:"high",tags:["seafood","low-gluten","mediterranean","quick"],ingredients:["300g shrimp, peeled","1 can (15 oz) cannellini beans, rinsed","2 big handfuls spinach","4 cloves garlic","Olive oil, lemon, chilli flakes, parsley"],steps:"Cook garlic and shrimp in olive oil 3–4 minutes. Add beans to warm through, wilt spinach, finish with lemon and parsley."},
+{id:8,title:"Lemon-Oregano Chicken with Roasted Zucchini & Cherry Tomatoes",source:"Added Oct 24 · Tue–Thu plan",time:30,servings:2,fiber:"low",tags:["chicken","low-gluten","mediterranean","sheet-pan"],ingredients:["2 chicken breasts (about 450g)","2 zucchini, chopped","1 punnet (250g) cherry tomatoes, halved","1 lemon, juiced + zested","3 cloves garlic, minced","3 tbsp extra virgin olive oil","1 tsp dried oregano","salt & pepper to taste"],steps:"Heat oven to 200°C / 400°F. Toss zucchini and tomatoes with 2 tbsp olive oil, half the garlic, salt and pepper on a sheet pan. Rub chicken with remaining oil, lemon zest, oregano, garlic, salt and pepper; nestle among vegetables. Roast 20-25 minutes until chicken is cooked through. Squeeze over lemon juice and rest 5 minutes before serving."},
+{id:10,title:"Quinoa-Stuffed Peppers with Spinach, Feta & Olives",source:"Added Oct 24 · Tue–Thu plan",time:35,servings:3,fiber:"high",tags:["vegetarian","low-gluten","mediterranean","make-ahead"],ingredients:["3 large bell peppers, halved & seeded","1 cup quinoa","1 small onion, diced","2 cloves garlic, minced","2 big handfuls spinach, chopped","1 can (14 oz) diced tomatoes","1 block (150g) feta, crumbled","handful Kalamata olives, halved","2 tbsp extra virgin olive oil","1 tsp dried oregano","salt & pepper to taste"],steps:"Cook quinoa per packet and set aside. Heat oven to 190°C / 375°F. Cook onion and garlic in olive oil until soft; add spinach until wilted, then tomatoes, quinoa, half the feta and olives; season with oregano, salt and pepper. Fill pepper halves, top with remaining feta, and bake 20 minutes until peppers are tender."},
+{id:11,title:"Turkey & Veggies Chili Soup",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["instant pot", "protein", "soup", "veggies", "notion"],ingredients:["Can of pinto beans", "Can of kidney beans", "3/4 red onion, chopped", "4 cloves garlic, minced", "Handful chopped celery", "1 green bell pepper, chopped", "Chopped cilantro for topping", "Shredded cheese for topping", "1.5 lbs ground turkey or beef meat", "2 tbsp salt", "2 tbsp chili powder", "1 tsp cumin", "1 tsp oregano", "Pinch of cayenne", "[1 tsp parsley]", "We1 tsp tomato paste", "Can of diced tomato", "Can of green chili", "Can of crushed tomato", "Light drizzle soy sauce", "1 cup water"],steps:"Start by sautéing onions and garlic. Then add turkey. Break up meat. Add 1 tbsp salt. Add green bell pepper til slightly softened. Then add all the rest of the ingredients. Mix. Then start manual timer 10 mins to cook. OLD RECIPE OF INGREDIENTS (less veggies)"},
+{id:12,title:"Pesto pasta with sun dried tomatoes and mushrooms",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["notion", "mediterranean-swap"],ingredients:["2 cups basil", "1/2 cup peas (thawed if was frozen)", "1/4 cup pine nuts", "3 cloves garlic", "Whole-grain or gluten-free fusilli pasta", "sundried tomatoes", "mushrooms", "• 4 cups fresh basil leaves (from about 3 large bunches)", "½ cup extra-virgin olive oil", "⅓ cup pine nuts", "2 garlic cloves", "¼ cup freshly grated Parmesan", "¼ cup freshly grated Pecorino Sardo", "1 teaspoon coarse kosher salt"],steps:"Mediterranean swap: Use whole-grain or gluten-free fusilli, keep pesto light, and toss with extra vegetables (sundried tomatoes and mushrooms already in the list). Original recipe: Combine basil, oil, pine nuts, and garlic in a blender. Blend until paste forms, stopping often to push down basil. Add both cheeses and salt; blend until smooth. Transfer to a small bowl. See original recipe: https://www.bonappetit.com/recipe/classic-pesto-sauce"},
+{id:14,title:"Kale salad",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["notion"],ingredients:["Kale", "Shitake mushrooms", "Pine nuts / pumpkin seeds", "Grilled onions", "Grilled chicken"],steps:"No step-by-step instructions in the Notion file."},
+{id:15,title:"Chicken Noodle Soup - Instant Pot",source:"From your Notion",time:30,servings:4,fiber:"low",tags:["chicken", "instant pot", "protein", "soup", "notion"],ingredients:["4 boneless skinless chicken thighs, trimmed of all fat (about 1 pound total)", "1/4 teaspoon kosher salt", "1 teaspoon olive oil", "1/2 cup diced onion", "1/2 cup diced celery", "1/2 cup peeled and sliced carrot", "3 cloves garlic, minced", "4 cups low-sodium chicken broth", "2 bay leaves", "black pepper, to taste", "1 cup (1 1/2 oz) egg noodles", "Cilantro, for garnish"],steps:"Season the chicken with salt. Press sauté, add the oil, and sauté the onion, celery, carrot, and garlic until soft, 4 to 5 minutes. Add the chicken, broth, bay leaves, and 1/8 teaspoon black pepper, cover, and cook on high pressure for 15 minutes, then let the pressure release naturally. Discard the bay leaves, coarsely shred the chicken with two forks, and return it to the soup. Add the noodles and cook for 2 minutes on high pressure, then quick or natural release. Garnish with cilantro and serve."},
+{id:16,title:"Baked Salmon",source:"From your Notion",time:30,servings:4,fiber:"low",tags:["notion", "mediterranean-swap"],ingredients:["1 large salmon fillet (about 3lb.)", "Kosher salt", "Freshly ground black pepper", "2 lemons, thinly sliced", "6 tbsp olive oil — swap: use olive oil instead of butter", "2 tbsp honey — swap: use half, or skip for a less sweet version", "3 cloves garlic, minced", "1 tsp. chopped thyme leaves", "1 tsp. dried oregano", "Chopped fresh parsley, for garnish"],steps:"Mediterranean swap: Use olive oil instead of butter, go easy on honey. Original steps: Preheat oven to 350°. Line a large rimmed baking sheet with foil and grease with cooking spray. To the center of the foil, lay lemon slices in an even layer. Season both sides of the salmon with salt and pepper and place on top of lemon slices. In a small bowl, whisk together butter, honey, garlic, thyme, and oregano. Pour over salmon then fold up foil surrounding salmon. Bake until the salmon is cooked through, about 25 minutes. Switch the oven to broil, and broil for 2 minutes, or until the butter mixture has thickened. Garnish with parsley before serving."},
+{id:25,title:"Banana Bread",source:"From your Notion",time:75,servings:4,fiber:"low",tags:["notion"],ingredients:["2 cups (250g) all-purpose flour (spoon & leveled)","1 teaspoon baking soda","1/4 teaspoon salt","1/2 teaspoon ground cinnamon","1/2 cup (1 stick or 115g) unsalted butter, softened to room temperature","3/4 cup (150g) packed light or dark brown sugar","2 large eggs, at room temperature","1/3 cup (80g) plain yogurt or sour cream (I use Greek yogurt)","2 cups mashed bananas (about 4 large ripe bananas)","1 teaspoon pure vanilla extract","optional: 3/4 cup (100g) chopped pecans or walnut"],steps:"Adjust the oven rack to the lower third position and preheat the oven to 350°F (177°C). Grease a 9×5-inch loaf pan or coat it with nonstick spray. Whisk the flour, baking soda, salt, and cinnamon together in a large bowl. Beat the butter and brown sugar together on high speed until smooth and creamy, about 2 minutes. Add the eggs one at a time, beating well after each addition, then beat in the yogurt, mashed bananas, and vanilla on medium speed until combined. Beat the dry ingredients into the wet ingredients on low speed until no flour pockets remain, and do not overmix. Fold in the nuts, if using, and spoon the batter into the prepared pan. Bake for 60 to 65 minutes, loosely covering the bread with aluminum foil after 30 minutes, until a toothpick inserted in the center comes out clean. Cool completely in the pan on a wire rack before slicing."},
+{id:29,title:"ABC Soup",source:"From your Notion",time:30,servings:4,fiber:"low",tags:["asian", "pork", "protein", "soup", "stovetop", "veggies", "notion", "mediterranean-swap"],ingredients:["1 - 1.25 lbs skinless chicken thighs or lean pork tenderloin, cut into bite-sized pieces — swap: spare ribs are fatty pork", "5 cups water", "12 oz potatoes, cubed (about 3 medium potatoes)", "6.5 oz carrots, roll-cut (about 1 large or 2 small carrots)", "1 tomato, cut into wedges (optional)", "1 small shallot, peeled", "1/2 teaspoon salt (and more for par-boiling)", "1 tablespoon fish sauce", "cilantro, roughly chopped", "black pepper"],steps:"Mediterranean swap: Swap fatty pork spare ribs for skinless chicken thighs or lean pork tenderloin, keep potatoes, carrots, and vegetables. Bring a pot with plenty of water to a boil, add the chicken or pork with some salt, boil for 2 more minutes, then remove, rinse, and discard the liquid. In a clean pot, add the meat, 5 cups of water, the shallot, and 1/2 teaspoon of salt, bring to a boil, then lower to a simmer, cover, and skim off any foam. Simmer until the meat is almost tender to your liking, 40-60 minutes, while you peel and cut the potatoes into 1-inch cubes and roll-cut the carrots slightly smaller. Increase the heat, add the carrots and wait for the water to boil again, then add the potatoes, lower to a simmer, cover, and cook until all ingredients are tender, about 10 more minutes. Increase the heat, add the tomato if using and cook for about a minute, then add the fish sauce and adjust seasoning to taste. Turn off the heat, add plenty of cilantro, transfer to bowls, and sprinkle with black pepper."},
+{id:31,title:"Minestrone Soup - Instant Pot",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["instant pot", "protein", "sausage", "soup", "veggies", "notion", "mediterranean-swap"],ingredients:["1 small onion, diced", "2 cloves garlic , minced", "1-2 medium carrots , about 1.5 cup, chopped", "2-3 large celery stalk , about 1 cup, chopped", "1 teaspoon dried oregano", "2 teaspoons dried basi", "3/4 teaspoon dried thyme", "1 32-oz can diced tomatoes , I usually use fire-roasted or Italian-style", "3 tablespoons tomato paste", "32 ounce carton , 4 cups low sodium vegetable broth", "1-2 bay leaf", "1 cup dry uncooked small shell pasta — use gluten-free, or leave out and add chopped potatoes or cauliflower instead", "2 medium zucchini (or 1 zucchini and 1 yellow squash), around 2/3 cups, sliced into halves or quarters", "1 can red kidney beans , drained and rinsed", "1-2 cups fresh baby spinach (or kale), optional for serving", "1 teaspoon balsamic vinegar , optional but adds great flavor", "Shredded or grated Parmesan cheese , optional for serving", "Fresh parsley , finely chopped, optional for garnish"],steps:"Mediterranean swap: Use gluten-free small pasta or potatoes or cauliflower instead of regular pasta, and go easy on Parmesan. Press SAUTE on the Instant Pot and heat for 2 minutes, then sauté the onions and garlic in olive oil for about 3 minutes, until fragrant. Add the carrots, celery, basil, oregano, thyme, tomatoes, tomato paste, bay leaf, vegetable broth, water, and dry pasta. Close the lid, set the valve to SEALING, and cook on HIGH pressure for 2 minutes. Do a quick release by turning the valve to VENTING, then open the lid. Add the zucchini and kidney beans, press SAUTE, and cook for another 5 to 6 minutes, until the pasta and beans are tender. Stir in the spinach or kale and let it sit until wilted, about 1 minute. Add more water if you like a thinner soup, season with salt and pepper, and stir in the balsamic vinegar if using. Serve warm, topped with Parmesan and parsley if desired. If you plan to freeze it or serve it the next day, cook the pasta separately and combine when serving so it does not get soggy."},
+{id:32,title:"Chicken Fajitas",source:"From your Notion",time:30,servings:6,fiber:"low",tags:["chicken", "protein", "skillet", "stovetop", "veggies", "notion"],ingredients:["3 boneless skinless chicken breasts", "1 onion thinly sliced", "3 bell peppers thinly sliced", "2 tablespoons olive oil", "1/2 lime", "1/2 tablespoon chili powder", "1/2 tablespoon ground cumin", "1 teaspoon garlic powder", "1/2 teaspoon paprika", "1/2 teaspoon oregano", "1/2 teaspoon salt", "1/4 teaspoon pepper", "tortillas", "sour cream", "pico de gallo", "avocado"],steps:"Chicken fajitas are an easy and flavorful weeknight meal. This Mexican recipe that everyone will love can be whipped up in less than 30 minutes. Add the fajitas seasoning ingredients to a small mixing bowl and stir together. Generously sprinkle the fajita seasoning on both sides of the chicken and use your fingers to press it into the chicken. Heat the oil in a large skillet over medium heat. Sear the chicken breasts for about 7-8 minutes on each side. While your chicken is cooking, cut the bell peppers and onion into thin slices. Once the chicken has finished cooking, remove it to a plate and let it rest for a couple of minutes. Add the bell peppers and onion to the same skillet over medium heat and saute for 4-5 minutes, stirring frequently. When the bell peppers are just about done sauteing, slice the chicken breasts into strips. Add the chicken back into the skillet, add a squeeze of fresh lime juice and stir everything together. Serve immediately with tortillas and extra toppings such as sour cream, pico de gallo and guacamole."},
+{id:35,title:"Japanese Curry",source:"From your Notion",time:30,servings:4,fiber:"low",tags:["asian", "chicken", "soup", "stovetop", "veggies", "notion"],ingredients:["⅔ lb yellow onion", "1 tbsp olive oil", "1 pinch salt", "1 tbsp water", "⅔ lb chicken or beef - or protein of your choice, diced", "1 tbsp unsalted butter", "2 cloves garlic", "⅓ lb carrot", "7 oz potato", "1/2 a box of Japanese curry roux - approx 100g", "3 - 3.5 cups water - or other liquid (see the post), this is an average, check the box for exact measurement", "6 portions cooked Japanese short-grain rice - approx 960g, or 3 rice cups before cookin", "your choice of secret ingredients - I used red wine, coffee, dark chocolate, soy sauce - all optional!", "Frozen peas"],steps:"Caramelizing the onion is optional: if you skip it, fry the onion in the pot with the butter for 5 to 10 minutes before adding the garlic and meat. Thinly slice the onion. Heat a pan on medium, add the olive oil and onions, and fry for 10 minutes, stirring occasionally. Add a pinch of salt, reduce the heat to low, and continue cooking for another 20 to 30 minutes, stirring every few minutes, adding 1 to 2 teaspoons of water at a time if the onions stick. While the onions cook, peel the potato and carrot and cut them into large, slightly bigger than bite-size pieces, and cut the meat into bite-size pieces. Heat a large pot on medium, melt the butter, and fry the garlic until fragrant. Add the meat with a pinch of salt and brown the surface to seal it. Add the carrot and potato and cook together for 1 to 2 minutes, then add the caramelized onion and stir thoroughly to break it up. Pour in 3 to 3.5 cups of water, swapping 10 percent of the water for red wine if you like, and bring to a boil. Reduce to medium-low, simmer for 20 minutes with the lid slightly ajar, skimming any foam from the top. Add soy sauce now if you like, then turn the heat to low, add the curry roux and any chocolate or coffee powder, and stir until dissolved. Simmer without a lid for 5 to 10 minutes until thickened to your preference, adding more water 50 to 100 ml at a time if it becomes too thick. Serve with rice and your favourite toppings."},
+{id:36,title:"Summer Soup - Instant Pot",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["instant pot", "soup", "veggies", "notion"],ingredients:["1 lb. chicken breasts", "1 28-ounce can crushed tomatoes", "4 carrots, peeled and chopped", "2 stalks celery, chopped", "3 cloves minced garlic", "1/2 cup farro (you can also use brown rice or small pasta)", "6 cups chicken broth", "2 tablespoons olive oil", "1 teaspoon each basil and oregano", "1/2 teaspoon each garlic and onion powder", "2 teaspoons salt", "2 zucchini, cut into small pieces", "2–3 cups of fresh sweet corn kernels, cut off the cob", "Toppings: Parmesan, lemon juice, plain yogurt, fresh herbs, freshly ground pepper, etc."],steps:"Place everything except the zucchini and sweet corn in the Instant Pot or pressure cooker. Cook on high pressure for 20 minutes, then release the steam. Shred the chicken and return it to the pot. Stir in the zucchini and sweet corn, then cook on high pressure for another 5 minutes and release the steam. Let the soup rest for a few minutes so it thickens slightly as it cools. Season with more salt and pepper and add toppings to taste. If you use a quick-cooking grain like small pasta, rice, or quinoa, add it with the zucchini and corn so it does not become mushy. For a gluten-free version, use brown rice, quinoa, or gluten-free pasta instead of farro."},
+{id:37,title:"steamed fish and bok choy",source:"From your Notion",time:30,servings:4,fiber:"low",tags:["asian", "fish", "protein", "veggies", "notion"],ingredients:["1 tilapia or any white fish", "ginger sliced thin", "scallion sliced thin", "sauce:", "2 tbsp soy sauce", "1 tbsp rice wine vinegar", "1 tsp sugar", "top fish with ginger and scallions", "mix sauce and pour over fish in bowl", "steam for 15min", "clean bok choy", "wok pan med high heat", "add garlic and scallions", "cool in batches", "add water to steam", "drizzle soy sauce"],steps:"See original recipe: https://www.tiktok.com/t/ZTRVAV5Lj/"},
+{id:42,title:"Miso salmon",source:"From your Notion",time:30,servings:4,fiber:"low",tags:["asian", "bake", "fish", "protein", "veggies", "notion"],ingredients:["¼ cup white miso paste", "¼ cup granulated sugar though maple syrup or honey can be used instead", "¼ cup mirin", "2 Tbsp low-sodium soy sauce or tamari, if gluten-free", "1 Tbsp sesame oil", "2 tsp ginger paste or fresh chopped ginger", "4 (6 oz) salmon fillets skin on or off", "Recommended for serving: thinly sliced scallions, black and white sesame seeds, and cilantro"],steps:"!Screenshot 2023-08-14 at 9.44.02 AM.png Make the marinade. Place ¼ cup white miso paste, ¼ cup granulated sugar, ¼ cup, 2 Tbsp soy sauce, 1 Tbsp sesame oil, and 2 tsp ginger paste in a mixing bowl, then whisk well. Marinate the salmon. Place salmon fillets in a large tupperware or in a large Ziplock bag. Reserve 2 Tbsp marinade, then pour the rest on top of the fish. Seal, then marinate for 30 minutes. Cook the salmon. When ready, preheat the broiler to high, then coat a sheet of parchment with cooking spray. Place the marinated salmon fillets skin side down, allowing excess marinade to drip off. If the marinade is thick, you can rub the excess marinade off with your hands, then place the fillets on the sheet pan. Broil the salmon for 6-8 minutes, rotating the pan once halfway through, or until the internal temperature of the fish reaches 120F. Finish, then serve. Brush the fillets with the remaining marinade, then serve immediately with thinly sliced scallions, sesame seeds, and fresh cilantro."},
+{id:43,title:"Veggie soup with chicken",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["notion"],ingredients:["®3 tablespoons extra virgin olive oil", "©4 carrots, peeled and chopped ®1 medium onion, chopped @4 stalks celery, thinly sliced", "@6 cloves garlic, thinly sliced", "@ Sea salt", "•Ground pepper", "1 large zucchini (or 2 small ones), sliced", "©1 (15.5-oz.) can cannellini beans, rinsed and drained", "@2 (28-oz.) cans diced tomatoes", "42 cups quinoa", "@Ground cumin to taste", "@Crushed red pepper flakes to taste", "@4 cups chicken broth", "•Handful of kale, ribs removed and leaves sliced", "©112 a lemon, squeezed", "Steps:", "@add olive oil to a large pan and heat over medium-high heat", "@add carrots, onions, celery and garlic", "season with salt and pepper and cook for 10 minutes, stirring occasionally, until veggies are soft", "add zucchini, cannellini beans, diced tomato, quinoa and chicken broth", "• season with cumin and crushed red pepper @bring to a boil and boil for 15 minutes", "@add kale and stir", "@add lemon and rotisserie chicken (optional) and stir again", "enjoy! Top with some extra ground black pepper"],steps:"follow @justinmschuble for more healthy recipes like this QUINOA VEGGIE SOUP |/ save this for later!! it's the perfect fall winter soup and will make enough for leftovers!"},
+{id:44,title:"Sausage, Kale, and White Bean Soup",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["protein", "sausage", "soup", "stovetop", "veggies", "notion", "mediterranean-swap"],ingredients:["1 tablespoon olive oil", "1/2 yellow onion, thinly sliced", "3–4 large cloves garlic, thinly sliced", "1 pound poultry sausage, or skip sausage — swap: processed pork sausage is the main Mediterranean mismatch", "1/2 to 1 teaspoon smoked paprika (optional)", "1–2 tablespoons flour (optional, makes it a bit thicker)", "5 cups chicken broth", "one 15-ounce can of cannellini beans", "4 medium potatoes, diced (any kind of potato will work)", "2 stalks kale, ribs removed, chopped", "3/4 cup heavy cream (can sub half and half) - substitute with dairy free cream", "1/2 teaspoon salt (more or less to taste)", "freshly ground black pepper and lemon juice"],steps:"Mediterranean swap: Use poultry sausage or skip sausage entirely, keep beans/kale/olive oil at the centre. Original steps: Onions, Garlic, and Sausage: Heat the olive oil over medium-high heat. Add the onion and garlic; sauté for 10 minutes or until very soft and fragrant. Add the sausage and cook until browned. Drain out excess grease. Spices: Add the smoked paprika and flour; sauté for one minute. Veggies: Add broth, a little at a time. Add potatoes; bring to a simmer over low heat. Cook for 10-15 minutes or until potatoes are tender. Add kale and white beans and simmer for another 5-10 minutes. Finish: Add half and half, salt, pepper, and lemon juice to taste. VOILA!"},
+{id:46,title:"Sukiyaki Hot Pot",source:"From your Notion",time:35,servings:4,fiber:"low",tags:["beef", "noodles", "pork", "protein", "rice", "soup", "stovetop", "veggies", "notion", "mediterranean-swap"],ingredients:["500 ml water", "5cm (2\") x 5cm (2\") strip of konbu (dried kelp)", "15g (0.5oz) katsuobushi (dried bonito flakes)"],steps:"Mediterranean swap note: This Notion file only contains dashi stock, not a full sukiyaki recipe. If you make sukiyaki from it, swap beef for chicken/tofu, go easy on sugar/soy, and load vegetables. Original dashi steps: This method of making dashi is not how professionals make dashi, as they make two lots of dashi out of one set of dashi ingredients. I find that this home style method is more practical and still flavoursome, as the ingredients are the same as awase-dashi (professional method). The cooking time does not include the 30 minutes required to soak the konbu. Please also see Varieties of Dashi Stock for other types of dashi recipes. Serves: 400 ml (13.5oz) Gently wipe any dust off konbu if necessary using dry towel or paper towel. Do not wash or remove white powder stuck on the surface of konbu by scraping it off as it is the umami (旨味). Add the water in a pot and soak the konbu for about 30 minutes if you have time. If you don’t have time, don’t worry. Place the pot over medium heat. When small bubbles start appearing in the pot, reduce heat to minimum and cook for about 10 minutes. Add katsuobushi and turn the heat up to medium. Cook for about 10 minutes. Turn the heat off and wait until katsuobushi sinks to the bottom of the pan. Line a few layers of muslin or a paper towel over in a sieve and pour all the contents in the pan to into the sieve. Let it drain naturally, lightly squeezing the katsuobushi (Note 1). Do not squeeze the katsuobushi too hard as it will produce a slight bitterness. You cannot keep dashi very long even in the fridge as it loses flavour. 2-3 days is the max, I would think. Freezing will also lose the falvour but if you don’t mind losing it, you could freeze the stock. If you would like to make dashi from store bought dashi pack or seasoning, just follow the instructions on the packet which should tell you how much you need for certain amount of water."},
+{id:47,title:"Russian Borscht",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["beef", "protein", "soup", "stovetop", "veggies", "notion"],ingredients:["3 medium beets, peeled and grated", "4 Tbsp olive oil, divided", "8 cups chicken broth , + 2 cups water", "3 medium yukon potatoes, peeled and sliced into bite-sized pieces", "2 carrots, peeled and thinly sliced", "2 celery ribs, trimmed and finely chopped", "1 small red bell pepper, finely chopped, optional", "1 medium onion, finely chopped", "4 Tbsp ketchup or 3 Tbsp tomato sauce", "1 can white cannelini beans with their juice", "2 bay leaves", "2-3 Tbsp white vinegar, or to taste", "1 tsp sea salt, or to taste", "1/4 tsp black pepper, freshly ground", "1 large garlic clove, pressed", "3 Tbsp chopped dill"],steps:"Our family's go-to recipe for Borscht (Red Beet Soup). It's best to have all of the ingredients prepped and ready to go which makes this soon super easy and care free. Serve with a dollop of sour cream or real mayo. Peel, grate and/or slice all vegetables (keeping sliced potatoes in cold water to prevent browning until ready to use then drain). Heat a large soup pot (5 1/2 Qt or larger) over medium/high heat and add 2 Tbsp olive oil. Add grated beets and sauté 10 minutes, stirring occasionally until beets are softened. Add 8 cups broth and 2 cups water. Add sliced potatoes and sliced carrots then cook for 10-15 minutes or until easily pierced with a fork. While potatoes are cooking, place a large skillet over medium/high heat and add 2 Tbsp oil. Add chopped onion, celery and bell pepper. Saute stirring occasionally until softened and lightly golden (7-8 minutes). Add 4 Tbsp Ketchup and stir fry 30 seconds then transfer to the soup pot to continue cooking with the potatoes. When potatoes and carrots reach desired softness, add 1 can of beans with their juice, 2 bay leaves, 2-3 Tbsp white vinegar, 1 tsp salt, 1/4 tsp black pepper, 1 pressed garlic clove, and 3 Tbsp chopped dill. Simmer for an additional 2-3 minutes and add more salt and vinegar to taste."},
+{id:49,title:"Tortellini Soup",source:"From your Notion",time:30,servings:4,fiber:"low",tags:["notion", "mediterranean-swap"],ingredients:["2tablespoons extra-virgin olive oil", "1medium yellow onion, chopped (1½ cups)", "1large carrot, diced (1 cup)", "2celery ribs, diced (1 cup)", "4large garlic cloves, minced (2 tablespoons)", "2teaspoons chopped fresh rosemary or 1 teaspoon dried rosemary", "1teaspoon dried oregano", "⅛teaspoon crushed red pepper, plus more to taste", "Kosher salt (such as Diamond Crystal) and black pepper", "2tablespoons tomato paste", "1(14-ounce) can diced tomatoes", "4cups (1 quart) vegetable broth", "1 (8- to 9-ounce) package gluten-free cheese tortellini", "¼ cup heavy cream — swap: use half the cream, or low-fat milk, for a lighter version", "4cups baby spinach (about 3 ounces)", "1teaspoon red wine vinegar or balsamic vinegar", "Chopped fresh basil or parsley, for serving", "Grated Parmesan, for serving"],steps:"Mediterranean swap: Use gluten-free tortellini, go lighter on cream/Parmesan, and load up spinach and vegetables. Heat the olive oil in a large pot or Dutch oven over medium heat and cook the onion, carrots, and celery, stirring occasionally, until tender-crisp, 8 to 10 minutes. Add the garlic, rosemary, oregano, crushed red pepper, 1 teaspoon salt (1 and 1/2 teaspoons for low-sodium broth), and 1/2 teaspoon black pepper and cook until the garlic is fragrant, 1 minute. Add the tomato paste and cook, stirring often, until it begins to form brown bits on the bottom of the pot, 2 to 3 minutes. Add the diced tomatoes and their juices and the broth, scraping up the bits, and bring to a boil, then lower the heat and simmer, partially covered, until the vegetables are tender, 10 to 15 minutes. Add the tortellini, return to a simmer, and cook until tender, 2 to 3 minutes, a minute longer if frozen. Add the cream and spinach and cook for 1 minute, stirring often until the spinach is wilted, then off the heat add the vinegar and season with more salt and pepper if needed. Serve hot, topped with basil, Parmesan, and more black or crushed red pepper if desired. Tortellini absorbs liquid as the soup sits, so add a splash of broth when reheating."},
+{id:50,title:"Garlic Butter Chicken and Broccoli",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["chicken", "rice", "stovetop", "veggies", "notion"],ingredients:["!Untitled", "2 medium chicken breast or 1 pound", "1 teaspoon EACH salt garlic powder, or oregano", "1 /2 teaspoon EACH black pepper chili powder", "1 tablespoon olive oil", "1/4 cup butter divided", "3-4 cloves garlic minced", "1 teaspoon Italian seasoning", "½ teaspoon crushed pepper", "3-4 cups broccoli florets or broccolini", "¼ cup water or chicken stock", "1 tablespoon lemon juice or juice of ½ lemon", "Broccoli can be replaced with zucchini, asparagus, brussels sprouts, green beans, or steamed potat"],steps:"Cut chicken breasts in half horizontally (to make 4 pieces total). Season both sides of chicken breasts with salt, garlic powder, black pepper, and chili powder. Heat 1 tablespoon olive oil in a large skillet or cast iron pan over medium-high heat. Add 2 tablespoons butter along with the chicken breasts. Cook chicken breasts 4-5 minutes per side or until browned and cooked through. Remove chicken breasts from the pan and add the remaining 2 tablespoons butter, garlic, Italian seasoning, and crushed pepper flakes. Stir for 1 minute or until garlic is fragrant and add the broccoli, water, and lemon juice to the pan. Cook broccoli 2-3 minutes or just until cooked. Return chicken to the pan and garnish with parsley, cilantro, or lemon if desired. Serve immediately."},
+{id:51,title:"Pasta e Fagioli - Stanley Tucci’s favorite soup",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["beef", "carb", "protein", "soup", "stovetop", "veggies", "notion", "mediterranean-swap"],ingredients:["2 tbsp olive oil", "1 tub of pre-diced mirepoix, OR", "1 medium onion, diced", "3 medium carrots, diced", "3 celery stalks, diced", "8 cloves garlic, minced, to taste", "1 tsp dried oregano", "1 tsp dried basil", "1 tsp dried thyme", "1 tsp dried fennel seeds", "1 tsp red pepper flakes (optional)", "Salt and pepper, to tast", "1 lb ground turkey, optional — swap: skip beef", "2-3 tbsp tomato paste", "1.5 carton (6 cups) vegetable or low-sodium chicken broth — swap: skip beef broth", "24 oz @raoshomemade tomato marinara sauce", "1 can cannellini beans, drained and rinsed", "1 bay leaf", "1 parmesan rind (optional)", "1 cup whole-grain or gluten-free ditalini pasta", "1 bunch or about 2 cups Tuscan kale, chopped, stems removed", "Juice from 1/2 lemon (to taste, plus more for garnish)", "Garnish: Parmesan, black pepper, chives, olive oil, lemon juice, bread"],steps:"Mediterranean swap: Skip beef, use ground turkey or no meat, use whole-grain/GF ditalini, and vegetable broth instead of beef broth. Heat olive oil over medium heat and cook the garlic for 30 seconds. Brown the ground turkey, breaking it up as it cooks, about 5-7 minutes, then remove from the pot. Add the onion, carrots, and celery, season with salt, pepper, oregano, basil, thyme, fennel seeds, and red pepper flakes, and sauté for 6-8 minutes until softened. Add the cooked meat back to the pot, stir in the tomato paste, and cook for 1-2 minutes to caramelize it slightly. Add the broth, marinara, beans, bay leaf, and parmesan rind, bring to a boil, then lower to a simmer and cook uncovered for about 30 minutes, stirring occasionally. Add the ditalini pasta and cook for 8-10 minutes until al dente, stirring in the kale in the last 5 minutes. Stir in fresh lemon juice to taste, adjust seasoning, and serve topped with freshly grated Parmesan, chopped chives, black pepper, a drizzle of olive oil, and lemon wedges."},
+{id:52,title:"Leek chicken soup",source:"From your Notion",time:30,servings:4,fiber:"low",tags:["notion"],ingredients:["1 T butter", "1 T olive oil", "Red pepper, to taste", "1 T Italian seasoning", "Salt and black pepper, to taste", "2 large leeks, cleaned, halved, and sliced", "2 carrot sticks, diced", "2 celery stalks, diced", "1 bulb garlic, minced (or to taste)", "1/4 cup dry white wine (optional)", "8 cups chicken broth (or 6 cups broth + 2 cups water) = 2 cartons", "Chicken bouillon seasoning (optional)", "1/2 tbsp paprika (optional)", "Bay leaves, optional", "1 cup ditalini pasta", "Parmesan rind (optional)", "2 eggs", "Juice from 1-2 lemons, to taste", "1 rotisserie chicken, shredded — OR just some chicken thighs baked separately", "Fresh dill, to taste", "1 cup frozen peas", "Fresh parsley, to taste", "2 big handfuls of spinach", "1 cup freshly shredded parmesan cheese", "chili oil"],steps:"Heat the butter and olive oil in a soup pot over medium heat. Add the leek, carrot, and celery, season with salt, red pepper, and Italian seasoning, and sauté for 5-7 minutes, adding chili oil if using. Add the garlic and cook for 30 seconds, then pour in the white wine if using and simmer for a few minutes until most of the liquid has evaporated. Add the chicken broth, paprika, chicken bouillon if using, bay leaves, and parmesan rind, season with salt and pepper, and bring to a light boil. Cook the ditalini pasta separately per packet, so it does not go soft in the soup. While the pasta cooks, whisk the eggs with the lemon juice, then slowly whisk in 1-2 ladles of hot soup broth to temper the eggs so they do not scramble. Add the shredded chicken, the egg mixture, the cooked pasta, peas, spinach, parsley, and dill to the soup and stir. Sprinkle in the parmesan cheese and stir until combined, then serve with chili oil, black pepper, extra parmesan, and extra dill."},
+{id:53,title:"Teriyaki Chicken",source:"From your Notion",time:30,servings:4,fiber:"low",tags:["asian", "chicken", "rice", "notion"],ingredients:["(Make less sweet next time! Use less sugar than prescribed below…)", "½ cup soy sauce", "¼ cup brown sugar", "¼ cup honey", "¼ cup water", "2 tablespoons rice vinegar", "1 clove minced garlic", "½ teaspoon ground ginger", "cornstarch slurry 1 teaspoon cornstarch + 1 teaspoon water"],steps:"Combine soy sauce, brown sugar, honey, water, rice vinegar, garlic, and ginger in a small bowl. Stir until the sugar has completely dissolved. Place the chicken thighs and ½ cup of the marinade in a covered bowl or freezer bag in the refrigerator for at least 15-30 minutes, up to overnight. If making ahead of time, store the unused marinade in the fridge. Place unused marinade in a small saucepan over medium to medium high heat. Stir together 1 teaspoon each cornstarch and water in a small bowl.When the marinade comes to a boil, add the cornstarch mixture, stir, and reduce heat to a simmer. Simmer and stir 10-12 minutes until thickened and reduced by about ⅓. Set aside 2-3 tablespoons of sauce in a separate bowl for brushing onto the finished chicken."},
+{id:55,title:"Burrito Bowl / Bake",source:"From your Notion",time:30,servings:4,fiber:"high",tags:["notion"],ingredients:["2 cans tomatoes w/ green chilis", "1 can corn", "1 can black beans", "1 pack microwave rice", "1 green pepper diced", "1/4 sweet onion diced", "1 lb beef w/ taco seasoning", "1 pack shredded cheese", "1 pack taco seasoning", "1 avocado and spinach for topping"],steps:"Cook beef on stovetop first Microwave rice Mix all ingredients together in casserole dish. Preheat oven to 350, bake for about 35 minutes"},
+{id:59,title:"One-Pan Salmon with Chard, Tomatoes & Peppers",source:"Inspired by @justinmschuble · One-Pan Salmon",time:20,servings:2,fiber:"low",tags:["fish", "low-gluten", "mediterranean", "one-pan", "quick"],ingredients:["2 salmon fillets", "1 bunch rainbow chard, stems sliced & leaves torn", "1 shallot, thinly sliced", "3-4 garlic cloves, minced", "1 pint cherry tomatoes", "6-8 mini sweet peppers, halved", "2-3 tbsp olive oil", "1/4 cup dry white wine", "Juice + zest of 1 lemon", "Fresh cilantro, chopped", "Sea salt, black pepper, garlic powder, paprika, curry powder to taste"],steps:"Heat oven to 400°F convection / 425°F conventional. Toss chard, shallot, garlic, tomatoes and peppers in a baking dish with olive oil, seasonings, lemon and wine. Lay salmon on top, drizzle with oil and season again. Bake 18-20 minutes until salmon flakes easily. Finish with cilantro, lemon zest and juice, and spoon pan juices over the vegetables."},
+{id:60,title:"Harissa Chicken Thighs with Crispy Potatoes",source:"Inspired by @justinmschuble · Harissa Chicken Thighs + Crispy Potatoes",time:40,servings:4,fiber:"low",tags:["chicken", "low-gluten", "mediterranean", "one-pan"],ingredients:["6 chicken thighs", "1 lb baby potatoes, halved", "1 onion, sliced", "2 tbsp harissa paste", "1 tbsp tomato paste", "3 cloves garlic, minced", "1 orange, sliced", "1 lemon, sliced", "2 cups chicken broth", "2 tbsp olive oil", "Garlic powder, paprika, salt + pepper to taste", "Fresh herbs for serving, optional"],steps:"Heat oven to 425°F. Season chicken with salt, pepper, paprika and garlic powder. Sear skin-side down in olive oil in an oven-safe skillet until deeply golden, flip briefly, then remove. Soften onion in the same pan, add garlic, then potatoes with salt and pepper. Stir in harissa and tomato paste to coat, pour in broth, return chicken skin-side up with orange and lemon slices. Roast 25-30 minutes until chicken is cooked and potatoes are tender. Broil 1-3 minutes for extra crisp edges if you like, finish with herbs and a squeeze of cooked citrus."},
+{id:61,title:"Cauliflower Shawarma Bowls",source:"Inspired by @daisybeet · Cauliflower Shawarma Bowls — original adaptation",time:30,servings:4,fiber:"high",tags:["bowl", "low-gluten", "mediterranean", "vegetarian"],ingredients:["1 large cauliflower, cut into florets", "1 red onion, sliced", "1 can (15 oz) chickpeas, rinsed", "1 cup basmati rice (or brown rice/quinoa)", "1 tsp ground coriander", "1 tsp ground cumin", "1 tsp paprika", "2-3 tbsp olive oil", "Salt + pepper to taste", "1 cup Greek yogurt", "2 tbsp tahini", "Juice of 1/2 lemon"],steps:"Heat oven to 425°F. Toss cauliflower, onion and chickpeas with olive oil, coriander, cumin, paprika, salt and pepper. Roast 20-25 minutes until golden and tender. Meanwhile cook rice per packet. Whisk Greek yogurt with tahini and lemon juice, season, and thin with water if needed. Serve roasted vegetables and chickpeas over rice with yogurt-tahini sauce."},
+{id:62,title:"Sheet Pan Roasted Sweet Potato Kale Salad",source:"Inspired by @kalejunkie · Sheet Pan Roasted Sweet Potato Kale Salad",time:45,servings:4,fiber:"high",tags:["salad", "low-gluten", "mediterranean", "sheet-pan", "meal-prep"],ingredients:["3 sweet potatoes, cubed (about 4 cups)", "1 bunch curly kale, stems removed, finely chopped", "2 cups cooked brown rice", "1/2 cup Italian parsley, chopped", "1/2 cup dried cranberries", "1/2 cup feta cheese, crumbled", "2 tbsp avocado oil or olive oil", "2 tsp garlic powder", "1 tsp onion powder", "1 tsp cumin", "1 tsp paprika", "Salt + pepper to taste", "1/4 cup tahini", "1/4 cup lemon juice (about 2 lemons)", "3 cloves garlic", "2 tsp maple syrup", "Water to thin as needed"],steps:"Heat oven to 425°F. Toss sweet potatoes with oil, garlic powder, onion powder, cumin, paprika, salt and pepper. Roast in a single layer 35 minutes, flipping halfway, until crisp and golden. Blend tahini, lemon juice, garlic, maple syrup, salt and pepper, thinning with water. Toss warm potatoes with kale, brown rice, parsley, cranberries and feta, pour dressing over and toss to coat."},
+{id:63,title:"Protein Overnight Oats",source:"Inspired by @daisybeet · Protein Overnight Oats — original adaptation",time:10,servings:2,fiber:"high",tags:["breakfast", "low-gluten", "no-cook", "high-protein"],ingredients:["1 cup certified gluten-free rolled oats", "2 tbsp chia seeds", "2 tbsp peanut butter", "1 cup milk (dairy or plant)", "1 cup Greek yogurt", "1 tsp cinnamon (optional)", "Berries or banana to serve (optional)"],steps:"Stir oats, chia, peanut butter, milk, Greek yogurt and cinnamon (if using) together in jars or a container. Cover and chill overnight (or at least 4 hours) until thick. Stir, top with berries or banana, and serve cold. Keeps 2-3 days in the fridge."},
+{id:64,title:"Hong Kong-Style Teriyaki Chicken and Egg Rice",source:"Added 2026-10-24 · Hong Kong-style, original adaptation",time:40,servings:2,fiber:"low",tags:["chicken", "rice", "asian", "low-gluten", "bowl"],ingredients:["2 boneless, skinless chicken thighs (about 300 g)", "3 tbsp tamari or gluten-free soy sauce, divided", "1 tbsp mirin", "1 tbsp honey", "1 tsp grated ginger", "1 clove garlic, minced", "1 tsp rice vinegar", "1 tsp cornstarch mixed with 1 tsp water (optional, to thicken the sauce)", "2 cups cooked jasmine rice, cold if possible", "2 eggs, beaten", "1 small onion, diced", "1/2 cup frozen peas and carrots", "1 tbsp neutral oil", "1 tsp sesame oil", "2 green onions, sliced", "Sesame seeds, to garnish (optional)", "Salt and pepper"],steps:"Mix tamari, mirin, honey, ginger, garlic and rice vinegar. Pour half over the chicken and marinate for 15 minutes; set the other half aside for serving — do not reuse marinade that has touched raw chicken. Cook the chicken in oil over medium-high heat for 6-7 minutes per side until cooked through, then rest for 5 minutes and slice. In the same pan, soften the onion and peas and carrots for 2-3 minutes, push to one side, scramble the eggs, then add the rice and sesame oil with a splash of tamari and toss for 3-4 minutes until hot. If you like a thicker drizzle, simmer the reserved sauce with the cornstarch mixture for 2-3 minutes. Serve the egg fried rice in bowls, top with sliced chicken and sauce, and garnish with green onions and sesame seeds."},
+{id:65,title:"Cucumber Dill Salad",source:"Inspired by @debonnoida · Cucumber Dill Salad — original adaptation",time:15,servings:4,fiber:"low",tags:["salad", "low-gluten", "mediterranean", "no-cook", "quick", "vegetarian"],ingredients:["2 large cucumbers, thinly sliced","1/2 red onion, thinly sliced","1/4 cup fresh dill, chopped","1 cup Greek yogurt","2 tbsp olive oil","Juice of 1 lemon","Salt and pepper to taste","1/2 cup feta, crumbled (optional)"],steps:"Thinly slice the cucumbers and red onion. Whisk the Greek yogurt, olive oil, and lemon juice together, and season with salt and pepper. Toss the cucumbers, onion, and dill with the dressing. Rest for 5 minutes, then top with feta if using, and serve cold."},
+{id:66,title:"Easy Shrimp Paella",source:"Added 2026-10-24 · Trader Joe's shortcut, original recipe",time:30,servings:4,fiber:"low",tags:["seafood", "low-gluten", "mediterranean", "skillet", "one-pan"],ingredients:["1 lb frozen shrimp, thawed and peeled (wild-caught or farmed, Trader Joe's)","2 bags Trader Joe's Spanish Style Rice (frozen)","1 pint grape tomatoes, halved","1 onion, diced","1 red bell pepper, diced","1 cup frozen peas","3 cloves garlic, minced","2 tbsp olive oil","1 tsp smoked paprika","Salt and pepper to taste","1 lemon, cut into wedges, to serve","Fresh parsley, chopped (optional)"],steps:"Thaw the shrimp under cold running water if frozen, then pat dry and season with salt, pepper, and the smoked paprika. Heat the olive oil in a large skillet over medium-high heat and sauté the shrimp for 1-2 minutes per side until just pink, then remove to a plate and set aside. In the same skillet, cook the onion and bell pepper for 4-5 minutes until softened, then add the garlic and cook for 1 minute more. Add the grape tomatoes and peas and cook for 2-3 minutes until the tomatoes start to soften. Meanwhile, microwave the Trader Joe's Spanish Style Rice according to the pouch instructions. Add the microwaved rice to the pan and stir to combine. Return the shrimp to the pan, toss through, and cook for 1 minute more just until heated through, then rest for 2 minutes and serve with lemon wedges and parsley if using."},
+{id:67,title:"Parmesan, Pea & Creamy Basil Chicken",source:"Inspired by @emthenutritionist — original adaptation",time:15,servings:3,fiber:"low",tags:["chicken", "lunch", "low-gluten", "mediterranean", "quick", "meal-prep"],ingredients:["240 g cooked chicken breast, shredded","150 g frozen peas","150 g thick Greek yogurt","30 g Parmesan, finely grated","1 tsp wholegrain mustard","2 green onions, finely sliced","1 small handful fresh basil, finely chopped","Zest and juice of 1/2 lemon","1 tsp garlic granules","Salt and black pepper to taste"],steps:"Cook the peas in boiling water for 2-3 minutes, then drain and rinse under cold water. Whisk the Greek yogurt with the mustard, lemon zest and juice, garlic granules, and Parmesan. Fold in the shredded chicken, peas, green onions, and basil, and season generously with salt and black pepper. Serve in a toasted pitta, on sourdough, or over a jacket potato — use a gluten-free pitta to keep it low-gluten. Keeps in an airtight container in the fridge for up to 3 days."},
+{id:68,title:"Honey Garlic Chicken Bowl (Air Fryer)",source:"Inspired by @justinmschuble — original adaptation, air fryer version",time:30,servings:2,fiber:"low",tags:["chicken", "rice", "asian", "low-gluten", "bowl"],ingredients:["1 lb boneless, skinless chicken thighs, cut into bite-size pieces","3 tbsp honey","3 tbsp tamari or gluten-free soy sauce, divided","Juice and zest of 1 lime, divided","1 tsp grated ginger","1 tbsp rice vinegar","1 tsp sesame oil","1/2 tsp garlic powder","1 pinch chili flakes","1/2 tsp paprika","1 tbsp cornstarch","Avocado oil spray, for the air fryer basket","1 cucumber, sliced","1 tbsp rice vinegar","1 tsp sesame oil","Juice of 1/2 lime","1 tsp sesame seeds, plus more to serve","2 cups cooked white rice","Fresh cilantro, chopped","2 green onions, sliced"],steps:"Whisk the honey, 2 tbsp tamari, half the lime juice and zest, ginger, rice vinegar, sesame oil, garlic powder, chili flakes, and paprika into a sauce. Toss the chicken in half the sauce and marinate for 15-30 minutes; reserve the rest of the sauce. Toss the sliced cucumber with 1 tbsp rice vinegar, 1 tsp sesame oil, the juice of 1/2 lime, and 1 tsp sesame seeds, and set aside. Lift the chicken out of the marinade, letting the excess drip off, then toss with the cornstarch, and spray lightly with avocado oil. Air fry in a single layer at 400°F for 12-14 minutes, flipping halfway, until cooked through and lightly crisped at the edges. Toss the hot chicken with the reserved sauce and the remaining 1 tbsp tamari. Serve over rice with the cucumber salad, and top with cilantro, green onions, and extra sesame seeds."},
+{id:69,title:"Chinese Shredded Chicken",source:"Inspired by @amazingsydneylife — original adaptation",time:30,servings:4,fiber:"low",tags:["chicken", "rice", "asian", "low-gluten", "bowl"],ingredients:["1 whole chicken (about 3 lb)","1 thumb fresh ginger, sliced","3 green onions, whole","Water, to cover","1 tbsp fresh ginger, finely chopped","3 green onions, finely sliced","2 tbsp tamari or gluten-free soy sauce","1/2 tbsp rice vinegar","1/2 tbsp sugar","5-7 tbsp cooking broth, from the pot","Salt to taste","Chili oil, to serve","4 cups cooked white rice, to serve"],steps:"Place a small heatproof bowl upside-down in a large pot and set the chicken on top. Add the sliced ginger and the whole green onions around the chicken, then add enough water to come most of the way up the chicken. Cover, bring to a boil, then cook for 20 minutes until the chicken is cooked through. Lift the chicken out onto a plate and let it rest for a few minutes, reserving the broth in the pot. Shred the meat by hand or with two forks, discarding the skin and bones. Whisk the tamari, rice vinegar, sugar, and 5-7 tbsp of the warm cooking broth into a sauce. Toss the shredded chicken with the chopped ginger, the sliced green onions, and the sauce, and season with salt to taste. Serve over white rice, spoon over a little extra broth, and finish with chili oil."},
+{id:70,title:"Sukiyaki Soup",source:"Inspired by @qingaling — original adaptation",time:30,servings:4,fiber:"high",tags:["soup", "beef", "asian", "low-gluten", "one-pot"],ingredients:["1/2 head napa cabbage, chopped","2 king oyster mushrooms, sliced","1 bunch enoki mushrooms, trimmed","1 onion, sliced","1 block firm tofu (about 300 g), sliced","1/2 lb lean beef, thinly sliced","400 g konjac noodles, rinsed and drained (about 2 packs)","1 bottle sukiyaki soup base","Water, per the soup base label","2 green onions, chopped, to serve"],steps:"Chop the napa cabbage, slice the king oyster mushrooms, onion, and tofu, and trim the enoki mushrooms. Arrange everything on a plate with the thinly sliced beef and the rinsed konjac noodles. Add it all to a large pot, pour in the sukiyaki soup base and water per the label, and bring to a simmer. Cover and simmer for about 20 minutes, until the vegetables are tender and the beef is cooked through. Ladle into bowls and top with the chopped green onions. Check the soup base label and use a gluten-free one to keep it low-gluten."},
+{id:71,title:"Dirty Spaghetti with Turkey",source:"Inspired by @clubbkitchen — original adaptation, Lipton onion soup mix removed",time:35,servings:4,fiber:"high",tags:["pasta", "turkey", "sausage", "skillet", "one-pan"],ingredients:["1 lb whole wheat spaghetti","1 lb ground turkey","1 lb ground turkey sausage","1 green bell pepper, diced","1 red bell pepper, diced","1 onion, diced","8 oz mushrooms, sliced","1/2 tsp chicken bouillon","1/2 tsp garlic powder","1/2 tsp onion powder","1/2 tsp smoked paprika","1/2 tsp Italian seasoning","1/2 tsp Cajun seasoning","1/2 tsp black pepper","2 tbsp tomato paste","1 tbsp garlic paste","2 tbsp Worcestershire sauce","4 tbsp all-purpose flour","1 cup chicken broth","1/2 cup pasta water, reserved"],steps:"Cook the spaghetti according to the package directions; reserve 1/2 cup of the pasta water, then drain. Dice the green pepper, red pepper, and onion, and slice the mushrooms. Brown the ground turkey and turkey sausage in a large skillet over medium-high heat, breaking it up as it cooks. Season with the chicken bouillon, garlic powder, onion powder, smoked paprika, Italian seasoning, Cajun seasoning, and black pepper. Stir in the flour and cook for 1 minute, then add the diced peppers, onion, and mushrooms and cook until softened and the mushrooms have browned a little. Stir in the tomato paste, garlic paste, and Worcestershire sauce, then pour in the chicken broth and the reserved pasta water. Simmer until the sauce thickens, adding a splash more broth if it cooks down too far. Toss the cooked spaghetti directly into the pan until coated, then serve."},
+];
+let selected=new Set();
+try{const saved=JSON.parse(localStorage.getItem('nick-recipes-selected')||'[]');if(Array.isArray(saved))saved.forEach(id=>{if(recipes.some(r=>r.id===id))selected.add(id)})}catch(e){}
+function saveSelected(){try{localStorage.setItem('nick-recipes-selected',JSON.stringify([...selected]))}catch(e){}}
+const listEl=document.getElementById('list'), shopEl=document.getElementById('shop'), countEl=document.getElementById('shopCount');
+
+// Filter options are derived from the recipes already in the app (tags + titles),
+// with a live count for each, so a box never offers an empty choice.
+const TYPE_OPTIONS=[
+ {v:'soup',label:'Soup',test:r=>r.tags.includes('soup')||r.title.toLowerCase().includes('soup')},
+ {v:'salad',label:'Salad',test:r=>r.tags.includes('salad')||r.title.toLowerCase().includes('salad')},
+ {v:'bowl',label:'Bowl',test:r=>r.tags.includes('bowl')||r.title.toLowerCase().includes('bowl')},
+ {v:'breakfast',label:'Breakfast',test:r=>r.tags.includes('breakfast')},
+ {v:'pasta',label:'Pasta & noodles',test:r=>r.tags.includes('pasta')||r.tags.includes('noodles')||/pasta|tortellini|noodle/i.test(r.title)},
+ {v:'skillet',label:'Skillet & one-pan',test:r=>r.tags.includes('skillet')||r.tags.includes('one-pan')||r.tags.includes('sheet-pan')},
+];
+const MAIN_OPTIONS=[
+ {v:'chicken',label:'Chicken',test:r=>r.tags.includes('chicken')||r.title.toLowerCase().includes('chicken')},
+ {v:'fish',label:'Fish & seafood',test:r=>r.tags.includes('fish')||r.tags.includes('seafood')||/salmon|tuna|shrimp|fish/i.test(r.title)},
+ {v:'vegetarian',label:'Vegetarian',test:r=>r.tags.includes('vegetarian')},
+ {v:'pork',label:'Pork & sausage',test:r=>r.tags.includes('pork')||r.tags.includes('sausage')||/pork|sausage/i.test(r.title)},
+ {v:'beef',label:'Beef',test:r=>r.tags.includes('beef')},
+];
+function fillFilter(id,options){const el=document.getElementById(id);options.forEach(o=>{const n=recipes.filter(o.test).length;if(n){const opt=document.createElement('option');opt.value=o.v;opt.textContent=o.label+' ('+n+')';el.appendChild(opt)}})}
+fillFilter('typeF',TYPE_OPTIONS);fillFilter('mainF',MAIN_OPTIONS);
+
+
+// Display helpers: ingredients are already a list, steps arrive as one long
+// string, so split them into one paragraph per sentence for readability.
+function splitSteps(txt){
+ if(!txt||!txt.trim()) return [];
+ const clean=txt.trim().replace(/\s+/g,' ');
+ const raw=clean.split(/(?<=[.!?])\s+(?=[A-Z0-9\(\"])/);
+ const out=[];
+ raw.forEach(part=>{
+  part=part.trim();
+  if(!part) return;
+  if(out.length&&/(\be\.g\.|\bi\.e\.|\betc\.|\bvs\.)$/i.test(out[out.length-1])){out[out.length-1]+=' '+part}
+  else out.push(part);
+ });
+ return out;
+}
+function stepsHtml(r){
+ const parts=splitSteps(r.steps);
+ if(!parts.length) return '<p class="steps-empty">No steps listed.</p>';
+ return parts.map((s,i)=>'<p class="step"><span class="step-num">'+(i+1)+'.</span>'+s+'</p>').join('');
+}
+
+
+// Serves scaling: each card gets a Serves 2 / 4 selector (plus the recipe's
+// original serves when it is 3 or 6, so nothing changes unless you pick).
+// Only a leading amount is scaled; vague items (to taste, handful, feta,
+// "Can of ...") are left exactly as written.
+const FRAC_MAP={'\u00bc':0.25,'\u00bd':0.5,'\u00be':0.75,'\u2153':1/3,'\u2154':2/3,'\u215b':0.125,'\u215c':0.375,'\u215d':0.625,'\u215e':0.875};
+function parseNum(s){if(FRAC_MAP[s]!==undefined)return FRAC_MAP[s];if(s.indexOf('/')>=0){const parts=s.split('/');return (+parts[0])/(+parts[1])}return parseFloat(s)}
+function parseLeadingQty(str){
+ const s=str.replace(/^[\s\u2022\-\*\[\(\"]+/,'');
+ let m=s.match(/^(\d+)\s+(\d+)\/(\d+)/);
+ if(m)return{qty:+m[1]+(+m[2])/(+m[3]),rest:s.slice(m[0].length)};
+ m=s.match(/^(\d+\/\d+|\d+(?:\.\d+)?|[\u00bc\u00bd\u00be\u2153\u2154\u215b\u215c\u215d\u215e])/);
+ if(!m)return null;
+ return{qty:parseNum(m[1]),rest:s.slice(m[0].length)};
+}
+function formatQty(q){
+ if(q<=0)return '0';
+ for(const den of [2,3,4,8]){
+  const scaled=q*den, rounded=Math.round(scaled);
+  if(rounded>0&&Math.abs(scaled-rounded)<0.06){
+   const whole=Math.floor(rounded/den), rem=rounded%den;
+   if(rem===0)return String(whole);
+   if(whole===0)return rem+'/'+den;
+   return whole+' '+rem+'/'+den;
+  }
+ }
+ return String(Math.round(q*100)/100);
+}
+function scaleIngredient(ing,factor){
+ if(factor===1)return ing;
+ const first=parseLeadingQty(ing);
+ if(!first)return ing;
+ const rest=first.rest;
+ const rm=rest.match(/^\s*(\u2013|-|to)\s*/);
+ if(rm){
+  const sep=rm[1]==='to'?' to ':'\u2013';
+  const second=parseLeadingQty(rest.slice(rm[0].length));
+  if(second){
+   const rest2=second.rest;
+   return formatQty(first.qty*factor)+sep+formatQty(second.qty*factor)+(rest2===''||rest2.charAt(0)===' '?rest2:' '+rest2);
+  }
+ }
+ return formatQty(first.qty*factor)+(rest===''||rest.charAt(0)===' '?rest:' '+rest);
+}
+let servesMap={};
+try{const savedServes=JSON.parse(localStorage.getItem('nick-recipes-serves')||'{}');if(savedServes&&typeof savedServes==='object')Object.keys(savedServes).forEach(id=>{const r=recipes.find(x=>x.id===+id);if(r&&[2,4,r.servings].indexOf(+savedServes[id])>=0)servesMap[+id]=+savedServes[id]})}catch(e){}
+function saveServes(){try{localStorage.setItem('nick-recipes-serves',JSON.stringify(servesMap))}catch(e){}}
+function chosenServes(r){return servesMap[r.id]||r.servings}
+function servesOptions(r){return [...new Set([2,4,r.servings])].sort((a,b)=>a-b)}
+function scaledIngredients(r){const f=chosenServes(r)/r.servings;if(f===1)return r.ingredients;return r.ingredients.map(i=>scaleIngredient(i,f))}
+window.setServes=(id,val)=>{servesMap[id]=+val;render()};
+
+// Share one recipe as plain text (ingredients scaled to the serves picked on its card).
+function fallbackCopy(text,done,fail){
+ try{
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  const ok=document.execCommand('copy');
+  document.body.removeChild(ta);
+  if(ok)done();else fail();
+ }catch(e){fail()}
+}
+window.shareRecipe=(id,btn)=>{
+ const r=recipes.find(x=>x.id===id); if(!r)return '';
+ const lines=[r.title, r.time+' min \u00b7 Serves '+chosenServes(r), '', 'Ingredients'];
+ scaledIngredients(r).forEach(i=>lines.push('- '+i));
+ lines.push('', 'How to make it');
+ splitSteps(r.steps).forEach((s,i)=>lines.push((i+1)+'. '+s));
+ const text=lines.join('\n');
+ const done=()=>{if(btn){btn.textContent='\u2713 Copied!';setTimeout(()=>{btn.textContent='Share recipe'},2000)}};
+ const fail=()=>{if(btn){btn.textContent='Copy failed \u2014 try again';setTimeout(()=>{btn.textContent='Share recipe'},2000)}};
+ if(typeof navigator!=='undefined'&&navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done,fail));
+ }else fallbackCopy(text,done,fail);
+ return text;
+};
+
+// Smarter shopping list: sum matching ingredients (same name + same unit),
+// group by store section, and leave ranges / vague items as separate lines.
+// Only exact name+unit matches are summed — different units stay separate,
+// so "2 tbsp olive oil" and "1/2 cup olive oil" are never merged.
+function isRangeRest(rest){return /^\s*(–|-)/.test(rest)||/^\s*to\s/.test(rest)}
+function aggregateIngredients(items){
+ const unitMap={cups:'cup',cup:'cup',tablespoons:'tablespoon',tablespoon:'tablespoon',tbsp:'tbsp',tbs:'tbsp',t:'tbsp',teaspoons:'teaspoon',teaspoon:'teaspoon',tsp:'tsp',cans:'can',can:'can',cloves:'clove',clove:'clove',lbs:'lb',lb:'lb',pounds:'pound',pound:'pound',ounces:'ounce',ounce:'ounce',oz:'oz',grams:'gram',gram:'gram',g:'g',kilograms:'kilogram',kilogram:'kilogram',kg:'kg',milliliters:'milliliter',milliliter:'milliliter',ml:'ml',liters:'liter',liter:'liter',l:'l',bunches:'bunch',bunch:'bunch',pints:'pint',pint:'pint',packs:'pack',pack:'pack',packages:'package',package:'package'};
+ const pluralMap={cup:'cups',tablespoon:'tablespoons',teaspoon:'teaspoons',can:'cans',clove:'cloves',pound:'pounds',ounce:'ounces',gram:'grams',kilogram:'kilograms',milliliter:'milliliters',liter:'liters',bunch:'bunches',pint:'pints',pack:'packs',package:'packages'};
+ function unitInfo(rest){
+  const t=rest.trim(); const parts=t.split(/\s+/); const first=parts[0].toLowerCase().replace(/,$/,'');
+  if(unitMap[first])return{unit:unitMap[first],name:parts.slice(1).join(' ')};
+  return{unit:'',name:t};
+ }
+ const map=new Map(), order=[];
+ items.forEach(ing=>{
+  const first=parseLeadingQty(ing);
+  if(!first||isRangeRest(first.rest)){
+   const key='raw:'+ing.toLowerCase();
+   if(!map.has(key)){map.set(key,{text:ing,key:key});order.push(key)}
+   return;
+  }
+  const info=unitInfo(first.rest); const key=(info.unit?info.unit+' ':'')+info.name.toLowerCase();
+  if(!map.has(key)){map.set(key,{qty:first.qty,unit:info.unit,name:info.name,key:key});order.push(key)}
+  else{map.get(key).qty+=first.qty}
+ });
+ return order.map(k=>{const e=map.get(k);if(e.qty===undefined)return e;const unit=e.unit?(e.qty>1?(pluralMap[e.unit]||e.unit):e.unit):'';return{text:formatQty(e.qty)+(unit?' '+unit:'')+(e.name?' '+e.name:''),key:e.key}});
+}
+function shopCategory(txt){
+ const l=txt.toLowerCase();
+ if(l.indexOf('fish sauce')>=0||l.indexOf('broth')>=0||l.indexOf('stock')>=0||l.indexOf('tomato paste')>=0||l.indexOf('marinara')>=0)return 'Pantry';
+ if(l.indexOf('peanut butter')>=0)return 'Pantry';
+ if(l.indexOf('noodle')>=0||l.indexOf('pasta')>=0||l.indexOf('ditalini')>=0||l.indexOf('fusilli')>=0||l.indexOf('tortellini')>=0)return 'Pantry';
+ if(l.indexOf('canned')>=0||/\bcan\b/.test(l))return 'Pantry';
+ if(l.indexOf('feta')>=0||l.indexOf('parmesan')>=0||l.indexOf('pecorino')>=0||l.indexOf('mozzarella')>=0||l.indexOf('cheddar')>=0||l.indexOf('yogurt')>=0||l.indexOf('milk')>=0||l.indexOf('cream')>=0||l.indexOf('cheese')>=0||l.indexOf('sour cream')>=0)return 'Dairy';
+ if(l.indexOf('butter')>=0)return 'Dairy';
+ if(l.indexOf('chicken')>=0||l.indexOf('salmon')>=0||l.indexOf('tuna')>=0||l.indexOf('shrimp')>=0||l.indexOf('beef')>=0||l.indexOf('pork')>=0||l.indexOf('sausage')>=0||l.indexOf('turkey')>=0||l.indexOf('tofu')>=0||l.indexOf('lamb')>=0||l.indexOf('tilapia')>=0||l.indexOf('white fish')>=0||/\begg/.test(l))return 'Protein';
+ if(l.indexOf('black pepper')>=0||l.indexOf('cracked pepper')>=0||l.indexOf('crushed red pepper')>=0||l.indexOf('dried')>=0||l.indexOf('powder')>=0)return 'Pantry';
+ if(l.indexOf('kale')>=0||l.indexOf('spinach')>=0||l.indexOf('chard')>=0||l.indexOf('lettuce')>=0||l.indexOf('arugula')>=0||l.indexOf('cabbage')>=0||l.indexOf('broccoli')>=0||l.indexOf('cauliflower')>=0||l.indexOf('carrot')>=0||l.indexOf('celery')>=0||l.indexOf('onion')>=0||l.indexOf('shallot')>=0||l.indexOf('garlic')>=0||l.indexOf('ginger')>=0||l.indexOf('potato')>=0||l.indexOf('zucchini')>=0||l.indexOf('squash')>=0||l.indexOf('cucumber')>=0||l.indexOf('tomato')>=0||l.indexOf('mushroom')>=0||l.indexOf('avocado')>=0||l.indexOf('lemon')>=0||l.indexOf('lime')>=0||l.indexOf('orange')>=0||l.indexOf('apple')>=0||l.indexOf('banana')>=0||l.indexOf('berr')>=0||l.indexOf('peach')>=0||l.indexOf('pear')>=0||l.indexOf('mango')>=0||l.indexOf('parsley')>=0||l.indexOf('cilantro')>=0||l.indexOf('basil')>=0||l.indexOf('dill')>=0||l.indexOf('mint')>=0||l.indexOf('rosemary')>=0||l.indexOf('thyme')>=0||l.indexOf('scallion')>=0||l.indexOf('green onion')>=0||l.indexOf('green onion')>=0||l.indexOf('leek')>=0||l.indexOf('corn')>=0||l.indexOf('peas')>=0||l.indexOf('mirepoix')>=0||l.indexOf('beet')>=0||l.indexOf('fennel')>=0||l.indexOf('asparagus')>=0||l.indexOf('bell pepper')>=0||l.indexOf('sweet pepper')>=0||l.indexOf('red pepper')>=0||l.indexOf('herb')>=0)return 'Produce';
+ if(l.indexOf('oil')>=0||l.indexOf('vinegar')>=0||l.indexOf('soy sauce')>=0||l.indexOf('tamari')>=0||l.indexOf('mirin')>=0||l.indexOf('rice')>=0||l.indexOf('quinoa')>=0||l.indexOf('oats')>=0||l.indexOf('flour')>=0||l.indexOf('sugar')>=0||l.indexOf('honey')>=0||l.indexOf('salt')>=0||l.indexOf('pepper')>=0||l.indexOf('cumin')>=0||l.indexOf('paprika')>=0||l.indexOf('coriander')>=0||l.indexOf('curry')>=0||l.indexOf('chili')>=0||l.indexOf('chilli')>=0||l.indexOf('spice')>=0||l.indexOf('seasoning')>=0||l.indexOf('tahini')>=0||l.indexOf('harissa')>=0||l.indexOf('beans')>=0||l.indexOf('lentils')>=0||l.indexOf('chickpeas')>=0||l.indexOf('nuts')>=0||l.indexOf('seeds')>=0||l.indexOf('sesame')>=0||l.indexOf('almond')>=0||l.indexOf('walnut')>=0||l.indexOf('pecan')>=0||l.indexOf('pine nut')>=0||l.indexOf('pumpkin seed')>=0||l.indexOf('cinnamon')>=0||l.indexOf('nutmeg')>=0||l.indexOf('clove')>=0||l.indexOf('oregano')>=0||l.indexOf('bay')>=0||l.indexOf('water')>=0||l.indexOf('baking soda')>=0||l.indexOf('vanilla')>=0||l.indexOf('miso')>=0||l.indexOf('wine')>=0||l.indexOf('maple syrup')>=0||l.indexOf('syrup')>=0||l.indexOf('bread')>=0)return 'Pantry';
+ return 'Other';
+}
+// Pantry staples are deliberately conservative: only items that are just
+// oil, salt, pepper, or water (with an optional "to taste"). Mixed lists
+// like "olive oil, lemon juice, oregano, salt & pepper" are NOT staples,
+// because they contain things you may need to buy. Bell / sweet / red
+// peppers are produce, not staples, and are excluded below.
+function isStaple(txt){
+ const l=txt.toLowerCase();
+ if(l.indexOf('bell pepper')>=0||l.indexOf('sweet pepper')>=0||l.indexOf('red pepper')>=0||l.indexOf('chili pepper')>=0||l.indexOf('chilli pepper')>=0||l.indexOf('crushed red pepper')>=0)return false;
+ let name;
+ const first=parseLeadingQty(txt);
+ if(first){
+  let rest=first.rest;
+  if(isRangeRest(rest)){
+   const after=rest.replace(/^\s*(–|-)\s*/,'').replace(/^\s*to\s+/,'');
+   const second=parseLeadingQty(after);
+   if(second)rest=second.rest;
+  }
+  const t=rest.trim(); const parts=t.split(/\s+/); const unitSet=new Set(['cup','cups','tablespoon','tablespoons','tbsp','tbs','t','teaspoon','teaspoons','tsp','can','cans','clove','cloves','lb','lbs','pound','pounds','oz','ounce','ounces','g','gram','grams','kg','ml','l','pinch','dash','bunch','pint','pack','package']);
+  const firstTok=parts[0].toLowerCase().replace(/,$/,'');
+  name=unitSet.has(firstTok)?parts.slice(1).join(' '):t;
+ } else {
+  name=txt.trim();
+ }
+ name=name.toLowerCase().replace(/\(optional\)/g,'').replace(/,\s*optional$/,'').trim();
+ const tokens=name.split(/[,;&]|\s+and\s+/).map(s=>s.trim().replace(/\s+to taste$/,'').replace(/^to taste\s*/,'')).filter(Boolean);
+ const stapleSet=new Set(['olive oil','extra virgin olive oil','extra-virgin olive oil','avocado oil','neutral oil','vegetable oil','salt','kosher salt','sea salt','water','black pepper','pepper','cracked pepper']);
+ if(!tokens.length)return false;
+ return tokens.every(tok=>stapleSet.has(tok));
+}
+let checkedShop=new Set();
+try{const savedChecked=JSON.parse(localStorage.getItem('nick-recipes-checked')||'[]');if(Array.isArray(savedChecked))savedChecked.forEach(k=>{if(typeof k==='string')checkedShop.add(k)})}catch(e){}
+function saveCheckedShop(){try{localStorage.setItem('nick-recipes-checked',JSON.stringify([...checkedShop]))}catch(e){}}
+let hideStaples=false;
+try{hideStaples=localStorage.getItem('nick-recipes-hide-staples')==='1'}catch(e){}
+function saveHideStaples(){try{localStorage.setItem('nick-recipes-hide-staples',hideStaples?'1':'0')}catch(e){}}
+window.setHideStaples=(v)=>{hideStaples=!!v;saveHideStaples();render()};
+let currentShopItems=[];
+window.toggleShopByIndex=(i,el)=>{const it=currentShopItems[i];if(!it)return;if(el&&el.checked)checkedShop.add(it.key);else checkedShop.delete(it.key);saveCheckedShop()};
+// Cook mode: focused view for one recipe, with checkable steps.
+// Step checks are saved per recipe, and reset with the Reset button.
+// Serves is set on the card first — cook mode follows the card's Serves choice.
+let cookStepsMap={};
+try{const savedCook=JSON.parse(localStorage.getItem('nick-recipes-cook-steps')||'{}');if(savedCook&&typeof savedCook==='object')cookStepsMap=savedCook}catch(e){}
+function saveCookSteps(){try{localStorage.setItem('nick-recipes-cook-steps',JSON.stringify(cookStepsMap))}catch(e){}}
+let currentCookId=null;
+window.openCook=(id)=>{const r=recipes.find(x=>x.id===id);if(!r)return;currentCookId=id;const modal=document.getElementById('cookModal');if(!modal)return;const titleEl=document.getElementById('cookTitle'),metaEl=document.getElementById('cookMeta'),ingEl=document.getElementById('cookIngredients'),stepsEl=document.getElementById('cookSteps');if(titleEl)titleEl.textContent=r.title;if(metaEl)metaEl.textContent=r.time+' min · Serves '+chosenServes(r)+(chosenServes(r)!==r.servings?' (scaled from serves '+r.servings+')':'');if(ingEl)ingEl.innerHTML=scaledIngredients(r).map(i=>'<li>'+i+'</li>').join('');const steps=splitSteps(r.steps);const checked=new Set(cookStepsMap[id]||[]);if(stepsEl)stepsEl.innerHTML=steps.map((s,i)=>'<li><input type="checkbox" id="cookStep'+i+'" '+(checked.has(i)?'checked':'')+' onclick="toggleCookStep('+i+',this)"><label for="cookStep'+i+'">'+s+'</label></li>').join('');modal.hidden=false};
+window.closeCook=()=>{const modal=document.getElementById('cookModal');if(modal)modal.hidden=true;currentCookId=null};
+window.toggleCookStep=(i,el)=>{if(currentCookId==null)return;const arr=new Set(cookStepsMap[currentCookId]||[]);if(el&&el.checked)arr.add(i);else arr.delete(i);cookStepsMap[currentCookId]=[...arr].sort((a,b)=>a-b);saveCookSteps()};
+window.resetCookSteps=()=>{if(currentCookId==null)return;cookStepsMap[currentCookId]=[];saveCookSteps();window.openCook(currentCookId)};
+
+// Own photos: one photo per recipe, added after cooking, shown as a
+// header image at the top of the card. Photos are stored in the browser
+// (localStorage, key 'nick-recipes-photos'), NOT inside index.html itself,
+// so they do not travel with the file — see the limits in the reply.
+// To keep storage manageable, photos are resized to at most 900px on the
+// longest side and saved as JPEG at 75% quality. If storage is full,
+// the new photo is not kept and the user is told to remove another first.
+let photoMap={};
+try{const savedPhotos=JSON.parse(localStorage.getItem('nick-recipes-photos')||'{}');if(savedPhotos&&typeof savedPhotos==='object')Object.keys(savedPhotos).forEach(id=>{const r=recipes.find(x=>x.id===+id);if(r&&typeof savedPhotos[id]==='string'&&savedPhotos[id].indexOf('data:image')===0)photoMap[+id]=savedPhotos[id]})}catch(e){}
+function savePhotos(){try{localStorage.setItem('nick-recipes-photos',JSON.stringify(photoMap));return true}catch(e){return false}}
+window.removePhoto=(id)=>{delete photoMap[id];savePhotos();render()};
+window.addPhoto=async (id,input)=>{
+ const file=input&&input.files&&input.files[0]; if(!file)return;
+ try{
+  let dataUrl=null; let bitmap=null;
+  try{if(window.createImageBitmap)bitmap=await window.createImageBitmap(file,{imageOrientation:'from-image'})}catch(e){}
+  if(bitmap){
+   const maxDim=900; const scale=Math.min(1,maxDim/Math.max(bitmap.width,bitmap.height)); const w=Math.max(1,Math.round(bitmap.width*scale)); const h=Math.max(1,Math.round(bitmap.height*scale));
+   const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h; const ctx=canvas.getContext('2d'); if(ctx)ctx.drawImage(bitmap,0,0,w,h);
+   dataUrl=await new Promise(res=>{try{canvas.toBlob(b=>{if(b){const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(canvas.toDataURL('image/jpeg',0.75));r.readAsDataURL(b)}else{res(canvas.toDataURL('image/jpeg',0.75))}},'image/jpeg',0.75)}catch(e){res(canvas.toDataURL('image/jpeg',0.75))}});
+   try{if(bitmap.close)bitmap.close()}catch(e){}
+  } else {
+   dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('read failed'));r.readAsDataURL(file)});
+  }
+  if(!dataUrl||dataUrl.indexOf('data:image')!==0)throw new Error('bad image');
+  const old=photoMap[id]; photoMap[id]=dataUrl;
+  if(!savePhotos()){if(old===undefined)delete photoMap[id];else photoMap[id]=old;alert('Photo could not be saved — browser storage is full. Try removing another photo first, then try again.');}
+  render();
+ }catch(e){alert('Could not read that photo. Try a different image.');}
+ if(input)input.value='';
+};
+
+
+
+// Backup / restore: everything the app keeps in browser storage,
+// so a new copy of the file, a new browser, or a new phone does not
+// lose selections, serves, checks, cook steps, or photos.
+// Restore only replaces storage, then the page reloads so the
+// in-memory state is re-read from storage.
+const BACKUP_KEYS=['nick-recipes-selected','nick-recipes-serves','nick-recipes-checked','nick-recipes-hide-staples','nick-recipes-cook-steps','nick-recipes-photos'];
+window.getBackupJSON=()=>{const data={app:'nick-recipes',version:1,exportedAt:new Date().toISOString(),values:{}};BACKUP_KEYS.forEach(k=>{try{data.values[k]=localStorage.getItem(k)}catch(e){data.values[k]=null}});return JSON.stringify(data)};
+window.downloadBackup=()=>{try{const blob=new Blob([window.getBackupJSON()],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='nick-recipes-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(e){alert('Backup could not be downloaded in this browser.')}};
+window.restoreBackupText=(t)=>{try{const data=JSON.parse(t);if(!data||data.app!=='nick-recipes'||!data.values||typeof data.values!=='object')return false;BACKUP_KEYS.forEach(k=>{if(data.values[k]!==undefined&&data.values[k]!==null){try{localStorage.setItem(k,data.values[k])}catch(e){}}});return true}catch(e){return false}};
+
+// Protein mains: a clear main protein, not just a sprinkle.
+// Chicken, fish/seafood, pork/sausage, beef by tag or title, or
+// beans, lentils, chickpeas, or tofu in the ingredients. Bread and
+// other baking are excluded even though they contain eggs, and
+// feta-only salads do not count.
+function isProteinMain(r){const t=r.title.toLowerCase();if(/bread|baking/.test(t))return false;if(r.tags.includes('chicken')||r.tags.includes('fish')||r.tags.includes('seafood')||r.tags.includes('pork')||r.tags.includes('sausage')||r.tags.includes('beef'))return true;if(/salmon|tuna|shrimp|chicken|pork|sausage|beef|fish/.test(t))return true;const ing=r.ingredients.join(' ').toLowerCase();return /lentil|chickpea|cannellini|white bean|black bean|kidney bean|tofu|tempeh/.test(ing);}
+
+
+// Curated card pills: the dish's main protein, low-gluten, Mediterranean,
+// and fiber (high/low). The full tag list stays in the data for search
+// and filters — only what the card shows changes.
+function mainProtein(r){
+ const t=r.title.toLowerCase();
+ if(/bread|baking/.test(t))return '';
+ const order=[['salmon','Salmon'],['tuna','Tuna'],['shrimp','Shrimp'],['chicken','Chicken'],['turkey','Turkey'],['sausage','Sausage'],['beef','Beef'],['pork','Pork'],['fish','Fish'],['tofu','Tofu'],['tempeh','Tempeh'],['lentil','Lentils'],['chickpea','Chickpeas']];
+ for(const [k,label] of order){if(t.includes(k))return label}
+ let ing=r.ingredients.join(' ').toLowerCase();
+ ing=ing.replace(/\b(chicken|beef|pork|vegetable)\s+(broth|stock|bouillon)\b/g,'').replace(/fish sauce/g,'');
+ for(const [k,label] of order){if(ing.includes(k))return label}
+ if(/cannellini|white bean|black bean|kidney bean|pinto bean|\bbeans\b/.test(ing))return 'Beans';
+ if(/\beggs?\b/.test(ing))return 'Eggs';
+ return '';
+}
+function displayTags(r){
+ const pills=[];
+ const prot=mainProtein(r);
+ if(prot)pills.push({t:prot,c:'tag-protein'});
+ if(r.tags.includes('low-gluten'))pills.push({t:'Low gluten',c:'tag-gluten'});
+ if(r.tags.includes('mediterranean'))pills.push({t:'Mediterranean',c:'tag-med'});
+ pills.push({t:r.fiber==='high'?'High fiber':'Low fiber',c:'tag-fiber'});
+ return pills.map(x=>`<span class="tag ${x.c}">${x.t}</span>`).join('');
+}
+
+function render(){
+ const q=document.getElementById('q').value.toLowerCase(); const maxT=document.getElementById('time').value;
+ const typeTest=TYPE_OPTIONS.find(o=>o.v===document.getElementById('typeF').value), mainTest=MAIN_OPTIONS.find(o=>o.v===document.getElementById('mainF').value); const proteinEl=document.getElementById('proteinF'); const proteinOnly=!!(proteinEl&&proteinEl.checked); const medEl=document.getElementById('medF'); const medOnly=!!(medEl&&medEl.checked); const fiberEl=document.getElementById('fiberF'); const fiberOnly=!!(fiberEl&&fiberEl.checked); const gfEl=document.getElementById('gfF'); const gfOnly=!!(gfEl&&gfEl.checked);
+ const shown=recipes.filter(r=>(!maxT||r.time<=+maxT)&&(!q||(r.title+' '+r.ingredients.join(' ')+' '+r.tags.join(' ')).toLowerCase().includes(q))&&(!typeTest||typeTest.test(r))&&(!mainTest||mainTest.test(r))&&(!proteinOnly||isProteinMain(r))&&(!medOnly||r.tags.includes('mediterranean'))&&(!fiberOnly||r.fiber==='high')&&(!gfOnly||r.tags.includes('low-gluten')));
+ shown.sort((a,b)=>b.id-a.id); // newest recipes first
+ document.getElementById('resultCount').textContent=shown.length===recipes.length?recipes.length+' recipes':'Showing '+shown.length+' of '+recipes.length+' recipes';
+ const openDetails=new Set(); listEl.querySelectorAll('.card').forEach(c=>{const id=c.dataset.id; if(!id)return; c.querySelectorAll('details').forEach(d=>{if(d.open)openDetails.add(id+':'+d.querySelector('summary').textContent)})});
+ listEl.innerHTML=shown.length?shown.map(r=>`<div class="card" data-id="${r.id}">${photoMap[r.id]?`<img class="card-photo" src="${photoMap[r.id]}" alt="Photo of this recipe">`:''}<h3>${r.title}</h3><div class="meta">${r.time} min</div><div>${displayTags(r)}</div><div class="serves-row"><label>Serves <select onchange="setServes(${r.id},this.value)">${servesOptions(r).map(v=>`<option value="${v}"${v===chosenServes(r)?' selected':''}>${v}</option>`).join('')}</select></label>${chosenServes(r)!==r.servings?`<span class="serves-note">Scaled from serves ${r.servings}</span>`:''}</div><details><summary>Ingredients</summary>${scaledIngredients(r).length?`<ul class="ing-list">${scaledIngredients(r).map(i=>`<li>${i}</li>`).join('')}</ul>`:'<p class="steps-empty">No ingredients listed.</p>'}</details><details><summary>How to make it</summary><div class="steps">${stepsHtml(r)}</div></details><p><button class="${selected.has(r.id)?'selected':'primary'}" onclick="toggle(${r.id},this)">${selected.has(r.id)?'✓ In shopping list — remove':'＋ Add to shopping list'}</button> <button onclick="openCook(${r.id})">Cook mode</button> <button onclick="shareRecipe(${r.id},this)">Share recipe</button></p><p class="photo-row"><label class="photo-label">${photoMap[r.id]?'Change photo':'＋ Add photo'}<input type="file" accept="image/*" onchange="addPhoto(${r.id},this)"></label>${photoMap[r.id]?`<button onclick="removePhoto(${r.id})">Remove photo</button>`:''}</p></div>`).join(''):'<div class="card">No recipes match. Try a different search or reset the filters.</div>';
+ listEl.querySelectorAll('.card').forEach(c=>{const id=c.dataset.id; if(!id)return; c.querySelectorAll('details').forEach(d=>{if(openDetails.has(id+':'+d.querySelector('summary').textContent))d.open=true})});
+ const rawItems=[]; recipes.filter(r=>selected.has(r.id)).forEach(r=>scaledIngredients(r).forEach(i=>rawItems.push(i)));
+ const fullItems=aggregateIngredients(rawItems);
+ const beforeChecked=checkedShop.size; checkedShop=new Set([...checkedShop].filter(k=>fullItems.some(it=>it.key===k))); if(checkedShop.size!==beforeChecked)saveCheckedShop();
+ const hiddenItems=hideStaples?fullItems.filter(it=>isStaple(it.text)):[];
+ const shownItems=hideStaples?fullItems.filter(it=>!isStaple(it.text)):fullItems;
+ const groups=['Produce','Protein','Pantry','Dairy','Other']; const grouped={}; groups.forEach(g=>grouped[g]=[]); shownItems.forEach(it=>grouped[shopCategory(it.text)].push(it));
+ currentShopItems=[]; let shopHtml='';
+ groups.forEach(g=>{if(!grouped[g].length)return; shopHtml+='<li class="shop-group">'+g+'</li>'; grouped[g].forEach(it=>{const idx=currentShopItems.length; currentShopItems.push(it); shopHtml+='<li><label><input type="checkbox" '+(checkedShop.has(it.key)?'checked':'')+' onclick="toggleShopByIndex('+idx+',this)"> '+it.text+'</label></li>'});});
+ countEl.textContent=selected.size?`${selected.size} meal(s) selected · ${shownItems.length} ingredients${hiddenItems.length?` · ${hiddenItems.length} staples hidden`:''}`:'No meals selected yet.';
+ shopEl.innerHTML=shopHtml||'<li class="empty">Pick a recipe to build your list.</li>';
+ saveSelected(); saveServes();
+}
+window.toggle=(id,btn)=>{selected.has(id)?selected.delete(id):selected.add(id);render()};
+document.getElementById('q').addEventListener('input',render); document.getElementById('time').addEventListener('change',render);
+document.getElementById('typeF').addEventListener('change',render); document.getElementById('mainF').addEventListener('change',render); const proteinFEl=document.getElementById('proteinF'); if(proteinFEl)proteinFEl.addEventListener('change',render); ['medF','fiberF','gfF'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',render)});
+document.getElementById('resetFilters').onclick=()=>{document.getElementById('q').value='';document.getElementById('time').value='';document.getElementById('typeF').value='';document.getElementById('mainF').value='';const pf=document.getElementById('proteinF');if(pf)pf.checked=false;['medF','fiberF','gfF'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false});render()};
+document.getElementById('clear').onclick=()=>{selected.clear();checkedShop.clear();saveCheckedShop();render()};
+document.getElementById('copy').onclick=()=>{const t=[...document.querySelectorAll('#shop li')].map(li=>li.textContent.trim()).join('\n');navigator.clipboard.writeText('Shopping list\n'+t).then(()=>alert('Copied!'))};
+document.getElementById('print').onclick=()=>window.print();
+const hideStaplesEl=document.getElementById('hideStaples'); if(hideStaplesEl){hideStaplesEl.checked=hideStaples; hideStaplesEl.addEventListener('change',()=>setHideStaples(hideStaplesEl.checked))};
+const cookCloseEl=document.getElementById('cookClose'); if(cookCloseEl)cookCloseEl.onclick=()=>closeCook();
+const cookResetEl=document.getElementById('cookReset'); if(cookResetEl)cookResetEl.onclick=()=>resetCookSteps();
+const backupBtnEl=document.getElementById('backupBtn'); if(backupBtnEl)backupBtnEl.onclick=()=>downloadBackup();
+const restoreInputEl=document.getElementById('restoreInput'); if(restoreInputEl)restoreInputEl.addEventListener('change',()=>{const f=restoreInputEl.files&&restoreInputEl.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{if(window.restoreBackupText(reader.result)){if(window.location&&window.location.reload)window.location.reload();else render()}else alert('That backup file could not be read.')};reader.readAsText(f);restoreInputEl.value='';});
+render();
+</script></body></html>

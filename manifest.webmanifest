@@ -1,0 +1,22 @@
+{
+  "name": "Nick's Recipes",
+  "short_name": "Recipes",
+  "description": "Searchable recipe list with shopping list. Low-gluten, Mediterranean-style.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#171815",
+  "theme_color": "#171815",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
