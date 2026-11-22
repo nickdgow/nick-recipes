@@ -21,8 +21,7 @@ button.primary{background:var(--accent);color:#1d1a14;border-color:var(--accent)
 button.primary:hover{background:var(--accent-dark)}
 button.selected{background:var(--pill);color:var(--accent);border-color:var(--accent)}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
-@media(max-width:800px){.grid{grid-template-columns:1fr}body{padding:20px 14px}h1{font-size:28px}}
+@media(max-width:800px){body{padding:20px 14px}h1{font-size:28px}}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow);transition:transform .15s ease,box-shadow .15s ease}
 .card:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.45),0 12px 28px rgba(0,0,0,.4)}
 .card h3{margin:0 0 6px;font-size:19px;line-height:1.3}
@@ -48,8 +47,6 @@ details .ing-list{margin-bottom:4px}
 .step{margin:0 0 10px}
 .step-num{display:inline-block;font-weight:700;color:var(--accent);margin-right:6px}
 .steps-empty{color:var(--faint);font-style:italic}
-aside{position:sticky;top:20px}
-@media(max-width:800px){aside{position:static}}
 .shop{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
 .shop h2{margin:0 0 6px;font-family:Georgia,'Times New Roman',serif;font-size:22px}
 #shopCount{margin:0 0 10px;color:var(--muted);font-size:14px}
@@ -81,7 +78,7 @@ aside{position:sticky;top:20px}
 .shop .tip{font-size:12.5px;color:var(--faint);margin:14px 0 0;line-height:1.5}
 details{margin-top:10px} summary{cursor:pointer;font-weight:700;color:var(--accent)}
 footer{font-size:12.5px;color:var(--faint);margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
-@media print{body,.card,.shop{background:#fff!important;color:#000!important}.toolbar,.filters,button{display:none!important}.grid{grid-template-columns:1fr}aside{position:static}.card{box-shadow:none;break-inside:avoid}.meta,.tip,#shopCount,.result-count,.ing-list{color:#333!important}.tag{background:#eee!important;color:#333!important;border-color:#ddd!important}summary{color:#000!important}}
+@media print{body,.card,.shop{background:#fff!important;color:#000!important}.toolbar,.filters,button{display:none!important}.card{box-shadow:none;break-inside:avoid}.meta,.tip,#shopCount,.result-count,.ing-list{color:#333!important}.tag{background:#eee!important;color:#333!important;border-color:#ddd!important}summary{color:#000!important}}
 
 .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin:0 0 16px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
 .filters label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -96,13 +93,17 @@ footer{font-size:12.5px;color:var(--faint);margin-top:22px;padding-top:16px;bord
 .result-count{margin:0 0 12px;color:var(--muted);font-size:14px}
 .backup-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
 .backup-label{font-size:13px}
+#recipesView[hidden],#shopView[hidden]{display:none}
+.shop-top{margin:0 0 14px}
 </style></head>
 <body>
 <h1>Nick's Recipes</h1>
+<div id="recipesView">
 <div class="toolbar">
 <input id="q" type="search" placeholder="Search recipes, ingredients… e.g. chickpea, salmon, kale">
 <select id="time"><option value="">Any time</option><option value="20">≤ 20 min</option><option value="30">≤ 30 min</option><option value="45">≤ 45 min</option></select>
 <button id="clear">Clear selected</button>
+<button id="shopBtn" class="primary">Shopping list</button>
 </div>
 <div class="filters">
 <label>Type<select id="typeF"><option value="">All types</option></select></label>
@@ -115,8 +116,12 @@ footer{font-size:12.5px;color:var(--faint);margin-top:22px;padding-top:16px;bord
 </div>
 <button id="resetFilters">Reset filters</button>
 </div>
-<div class="grid"><div><p id="resultCount" class="result-count"></p><div id="list"></div></div>
-<aside><div class="shop"><h2>Shopping list</h2><p id="shopCount">No meals selected yet.</p><label class="staple-toggle"><input type="checkbox" id="hideStaples"> Hide pantry staples (oil, salt, pepper, water)</label><ul id="shop"></ul><div class="shop-actions"><button class="primary" id="copy">Copy shopping list</button><button id="print">Print</button></div><div class="backup-row"><button id="backupBtn">Download backup</button><label class="backup-label">Restore backup <input type="file" id="restoreInput" accept=".json,application/json"></label></div><p class="tip">Backup includes selected meals, serves, shopping checks, cook-mode checks, and photos. Restore replaces those on this device/browser, then reloads the app.</p><p class="tip">Tip: matching ingredients are added together and grouped by section. Items with different units, or vague amounts, stay separate — check them before you shop.</p></div></aside></div>
+<p id="resultCount" class="result-count"></p><div id="list"></div>
+</div>
+<div id="shopView" hidden>
+<p class="shop-top"><button id="backBtn">← Back to recipes</button></p>
+<div class="shop"><h2>Shopping list</h2><p id="shopCount">No meals selected yet.</p><label class="staple-toggle"><input type="checkbox" id="hideStaples"> Hide pantry staples (oil, salt, pepper, water)</label><ul id="shop"></ul><div class="shop-actions"><button class="primary" id="copy">Copy shopping list</button><button id="print">Print</button></div><div class="backup-row"><button id="backupBtn">Download backup</button><label class="backup-label">Restore backup <input type="file" id="restoreInput" accept=".json,application/json"></label></div><p class="tip">Backup includes selected meals, serves, shopping checks, cook-mode checks, and photos. Restore replaces those on this device/browser, then reloads the app.</p><p class="tip">Tip: matching ingredients are added together and grouped by section. Items with different units, or vague amounts, stay separate — check them before you shop.</p></div>
+</div>
 <div id="cookModal" class="cook-modal" hidden><div class="cook-card"><button id="cookClose" class="cook-close">✕ Close</button><h2 id="cookTitle"></h2><p id="cookMeta" class="meta"></p><h3>Ingredients</h3><ul id="cookIngredients" class="ing-list"></ul><h3>How to make it</h3><ol id="cookSteps" class="cook-steps"></ol><p><button id="cookReset">Reset checked steps</button></p></div></div>
 <footer>42 recipes — starters, Notion, Instagram-inspired, and Hong Kong-style. Low-gluten · Mediterranean-style.</footer>
 <script>
@@ -475,6 +480,7 @@ function render(){
  currentShopItems=[]; let shopHtml='';
  groups.forEach(g=>{if(!grouped[g].length)return; shopHtml+='<li class="shop-group">'+g+'</li>'; grouped[g].forEach(it=>{const idx=currentShopItems.length; currentShopItems.push(it); shopHtml+='<li><label><input type="checkbox" '+(checkedShop.has(it.key)?'checked':'')+' onclick="toggleShopByIndex('+idx+',this)"> '+it.text+'</label></li>'});});
  countEl.textContent=selected.size?`${selected.size} meal(s) selected · ${shownItems.length} ingredients${hiddenItems.length?` · ${hiddenItems.length} staples hidden`:''}`:'No meals selected yet.';
+ const shopBtnEl=document.getElementById('shopBtn');if(shopBtnEl)shopBtnEl.textContent=selected.size?`Shopping list (${selected.size})`:'Shopping list';
  shopEl.innerHTML=shopHtml||'<li class="empty">Pick a recipe to build your list.</li>';
  saveSelected(); saveServes();
 }
@@ -483,6 +489,9 @@ document.getElementById('q').addEventListener('input',render); document.getEleme
 document.getElementById('typeF').addEventListener('change',render); document.getElementById('mainF').addEventListener('change',render); const proteinFEl=document.getElementById('proteinF'); if(proteinFEl)proteinFEl.addEventListener('change',render); ['medF','fiberF','gfF'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',render)});
 document.getElementById('resetFilters').onclick=()=>{document.getElementById('q').value='';document.getElementById('time').value='';document.getElementById('typeF').value='';document.getElementById('mainF').value='';const pf=document.getElementById('proteinF');if(pf)pf.checked=false;['medF','fiberF','gfF'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false});render()};
 document.getElementById('clear').onclick=()=>{selected.clear();checkedShop.clear();saveCheckedShop();render()};
+window.showView=(v)=>{const rv=document.getElementById('recipesView'),sv=document.getElementById('shopView');if(rv)rv.hidden=v!=='recipes';if(sv)sv.hidden=v!=='shop';window.scrollTo(0,0)};
+document.getElementById('shopBtn').onclick=()=>showView('shop');
+document.getElementById('backBtn').onclick=()=>showView('recipes');
 document.getElementById('copy').onclick=()=>{const t=[...document.querySelectorAll('#shop li')].map(li=>li.textContent.trim()).join('\n');navigator.clipboard.writeText('Shopping list\n'+t).then(()=>alert('Copied!'))};
 document.getElementById('print').onclick=()=>window.print();
 const hideStaplesEl=document.getElementById('hideStaples'); if(hideStaplesEl){hideStaplesEl.checked=hideStaples; hideStaplesEl.addEventListener('change',()=>setHideStaples(hideStaplesEl.checked))};
